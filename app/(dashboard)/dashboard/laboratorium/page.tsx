@@ -182,7 +182,7 @@ export default function LabManagementPage() {
             </div>
             <div className="space-y-2">
               <Label>Prodi Teknik*</Label>
-              <Select value={form.prodi} onValueChange={(v) => setForm({...form, prodi: v})}>
+              <Select value={form.prodi} onValueChange={(v) => setForm({...form, prodi: v ?? ''})}>
                 <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                   <SelectValue placeholder="Pilih Prodi Teknik" />
                 </SelectTrigger>

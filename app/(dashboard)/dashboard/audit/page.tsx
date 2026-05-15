@@ -99,7 +99,7 @@ export default function AuditPage() {
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-wrap gap-4"
       >
-        <Select value={tabelFilter} onValueChange={setTabelFilter}>
+        <Select value={tabelFilter} onValueChange={(value) => setTabelFilter(value ?? 'all')}>
           <SelectTrigger className="w-48 bg-slate-800/40 border-slate-700 text-white">
             <div className="flex items-center gap-2">
               <Database size={16} className="text-slate-500" />
@@ -115,7 +115,7 @@ export default function AuditPage() {
           </SelectContent>
         </Select>
 
-        <Select value={limit} onValueChange={setLimit}>
+        <Select value={limit} onValueChange={(value) => setLimit(value ?? '50')}>
           <SelectTrigger className="w-32 bg-slate-800/40 border-slate-700 text-white">
             <SelectValue placeholder="Limit" />
           </SelectTrigger>

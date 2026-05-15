@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     // Final Sanity Check for all records
     const sanitizedRecords = records.map(r => {
-      const isUUID = (str: string | null) => str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+      const isUUID = (str: string | null | undefined) => !!str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
       return {
         ...r,
         labId: isUUID(r.labId) ? r.labId : null

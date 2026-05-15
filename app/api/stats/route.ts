@@ -8,7 +8,7 @@ export async function GET() {
   // Base queries
   let pQ = supabase.from('Peralatan').select('stokTotal,stokBaik,stokRusak,stokButuhPerbaikan,kategori,labId')
   let lQ = supabase.from('LaporanKerusakan').select('status,createdAt,labId,pelaporId')
-  let pmQ = supabase.from('Peminjaman').select('status,createdAt,labId,peminjamId')
+  let pmQ = supabase.from('Peminjaman').select('status,createdAt,labId,peminjamId,tujuan')
   let uQ = supabase.from('User').select('id,role,aktif,pendingApproval,labId').in('role', ['MAHASISWA', 'DOSEN', 'KEPALA_LAB'])
 
   // ROLE-BASED FILTERING

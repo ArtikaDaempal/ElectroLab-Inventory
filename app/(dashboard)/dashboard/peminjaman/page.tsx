@@ -27,6 +27,7 @@ import {
 interface Peminjaman {
   id: string
   alatId: string
+  labId: string
   peminjamId: string
   jumlah: number
   tujuan: string
@@ -459,7 +460,7 @@ export default function PeminjamanPage() {
               )
               
               if (results.length > 0) {
-                setScannedResults(results)
+                setScannedResults(groupData(results))
               } else {
                 toast.error(`Tidak ditemukan peminjaman aktif untuk alat dengan kode: ${code}`)
               }

@@ -92,7 +92,7 @@ export default function KatalogPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={kategoriFilter} onValueChange={setKategoriFilter}>
+        <Select value={kategoriFilter} onValueChange={(value) => setKategoriFilter(value ?? 'all')}>
           <SelectTrigger className="w-full md:w-64 bg-slate-800/40 border-slate-700 text-white">
             <div className="flex items-center gap-2">
               <Filter size={16} className="text-slate-500" />
@@ -105,7 +105,7 @@ export default function KatalogPage() {
           </SelectContent>
         </Select>
 
-        <Select value={labFilter} onValueChange={setLabFilter}>
+        <Select value={labFilter} onValueChange={(value) => setLabFilter(value ?? 'all')}>
           <SelectTrigger className="w-full md:w-64 bg-slate-800/40 border-slate-700 text-white">
             <div className="flex items-center gap-2">
               <BookOpen size={16} className="text-slate-500" />

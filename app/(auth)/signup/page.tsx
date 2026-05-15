@@ -31,7 +31,7 @@ function SignupContent() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }))
+  const set = (k: string, v: string | null) => setForm((f) => ({ ...f, [k]: v ?? '' }))
 
   useEffect(() => {
     fetch('/api/labs').then(r => r.json()).then(setLabs).catch(() => {})
