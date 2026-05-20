@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useId, useRef } from 'react'
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { X, Camera } from 'lucide-react'
 import { Button } from './button'
@@ -13,19 +13,28 @@ interface QRScannerProps {
 export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const onScanRef = useRef(onScan)
+  const isHandlingScanRef = useRef(false)
+  const reactId = useId()
+  const readerId = `qr-reader-${reactId.replace(/:/g, '')}`
+
+  const clearScanner = (scanner: Html5QrcodeScanner) => {
+    return scanner.clear().catch((err) => {
+      const message = err instanceof Error ? err.message : String(err)
+      if (message.includes('removeChild') || message.includes('not a child')) return
+      console.error('Failed to clear scanner', err)
+    })
+  }
 
   useEffect(() => {
     onScanRef.current = onScan
   }, [onScan])
 
   useEffect(() => {
-    const reader = document.getElementById('reader')
+    const reader = document.getElementById(readerId)
     if (!reader) return
 
-    reader.innerHTML = ''
-
     const scanner = new Html5QrcodeScanner(
-      'reader',
+      readerId,
       { 
         fps: 10, 
         qrbox: { width: 250, height: 250 },
@@ -36,8 +45,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
 
     scanner.render(
       (decodedText) => {
-        onScanRef.current(decodedText)
-        scanner.clear().catch(err => console.error('Failed to clear scanner', err))
+        if (isHandlingScanRef.current) return
+
+        isHandlingScanRef.current = true
+        scannerRef.current = null
+        clearScanner(scanner).finally(() => onScanRef.current(decodedText))
       },
       () => {}
     )
@@ -45,11 +57,13 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     scannerRef.current = scanner
 
     return () => {
-      scanner.clear().catch(err => console.error('Failed to clear scanner', err))
-      reader.innerHTML = ''
+      if (!scannerRef.current) return
+
+      const activeScanner = scannerRef.current
       scannerRef.current = null
+      clearScanner(activeScanner)
     }
-  }, [])
+  }, [readerId])
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -65,7 +79,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
         </div>
 
         <div className="p-4">
-          <div id="reader" className="rounded-xl overflow-hidden border border-slate-800 bg-black"></div>
+          <div id={readerId} className="qr-reader rounded-xl overflow-hidden border border-slate-800 bg-black"></div>
           
           <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
             <p className="text-[10px] text-blue-400 text-center leading-relaxed">
@@ -83,11 +97,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
       </div>
 
       <style jsx global>{`
-        #reader { border: none !important; }
-        #reader img { display: none !important; }
-        #reader__status_span { display: none !important; }
-        #reader__scan_region { background: #000 !important; }
-        #reader button {
+        .qr-reader { border: none !important; }
+        .qr-reader img { display: none !important; }
+        .qr-reader [id$="__status_span"] { display: none !important; }
+        .qr-reader [id$="__scan_region"] { background: #000 !important; }
+        .qr-reader button {
           background-color: #3b82f6 !important;
           color: white !important;
           border: none !important;
@@ -97,7 +111,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
           cursor: pointer !important;
           margin-top: 10px !important;
         }
-        #reader select {
+        .qr-reader select {
           background-color: #1e293b !important;
           color: white !important;
           border: 1px solid #334155 !important;
