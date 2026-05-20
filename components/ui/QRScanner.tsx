@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { X, Camera } from 'lucide-react'
 import { Button } from './button'
@@ -11,13 +11,21 @@ interface QRScannerProps {
 }
 
 export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
-  const [error, setError] = useState<string | null>(null)
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
+  const onScanRef = useRef(onScan)
 
   useEffect(() => {
-    // Inisialisasi scanner
+    onScanRef.current = onScan
+  }, [onScan])
+
+  useEffect(() => {
+    const reader = document.getElementById('reader')
+    if (!reader) return
+
+    reader.innerHTML = ''
+
     const scanner = new Html5QrcodeScanner(
-      "reader",
+      'reader',
       { 
         fps: 10, 
         qrbox: { width: 250, height: 250 },
@@ -28,25 +36,20 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
 
     scanner.render(
       (decodedText) => {
-        // Berhasil scan
-        onScan(decodedText)
-        scanner.clear().catch(err => console.error("Failed to clear scanner", err))
+        onScanRef.current(decodedText)
+        scanner.clear().catch(err => console.error('Failed to clear scanner', err))
       },
-      (errorMessage) => {
-        // Error saat scanning (biasanya karena tidak ada QR di depan kamera)
-        // Kita diamkan saja agar tidak spamming console
-      }
+      () => {}
     )
 
     scannerRef.current = scanner
 
-    // Cleanup saat unmount
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(err => console.error("Failed to clear scanner", err))
-      }
+      scanner.clear().catch(err => console.error('Failed to clear scanner', err))
+      reader.innerHTML = ''
+      scannerRef.current = null
     }
-  }, [onScan])
+  }, [])
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
