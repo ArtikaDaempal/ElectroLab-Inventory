@@ -38,15 +38,20 @@ const PRODI_OPTIONS = [
 
 export default function PeralatanPage() {
   const user = useAuthStore((s) => s.user)
+  const isKepalaLab = user?.role === 'KEPALA_LAB'
   const [data, setData] = useState<Peralatan[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [kategoriFilter, setKategoriFilter] = useState('all')
   const [labFilter, setLabFilter] = useState('all')
-
   const [prodiFilter, setProdiFilter] = useState('all')
 
+  // KEPALA_LAB tidak menggunakan filter prodi — selalu tampil semua alat labnya
+  const activeProdiFilter = isKepalaLab ? 'all' : prodiFilter
+
   useEffect(() => {
+    // KEPALA_LAB tidak boleh memfilter ke lab lain — biarkan API yang enforce
+    if (isKepalaLab) return
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const id = params.get('labId')
@@ -55,7 +60,7 @@ export default function PeralatanPage() {
         window.history.replaceState(null, '', window.location.pathname)
       }
     }
-  }, [])
+  }, [isKepalaLab])
 
   const [labs, setLabs] = useState<any[]>([])
   const [showAdd, setShowAdd] = useState(false)
@@ -79,8 +84,10 @@ export default function PeralatanPage() {
     const params = new URLSearchParams()
     if (search) params.append('search', search)
     if (kategoriFilter !== 'all') params.append('kategori', kategoriFilter)
-    if (labFilter !== 'all') params.append('labId', labFilter)
-    if (prodiFilter !== 'all') params.append('prodi', prodiFilter)
+    // KEPALA_LAB: API sudah otomatis membatasi ke lab mereka sendiri
+    if (!isKepalaLab && labFilter !== 'all') params.append('labId', labFilter)
+    // KEPALA_LAB tidak menggunakan filter prodi
+    if (activeProdiFilter !== 'all') params.append('prodi', activeProdiFilter)
     
     try {
       const res = await fetch(`/api/peralatan?${params.toString()}`)
@@ -95,7 +102,7 @@ export default function PeralatanPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, kategoriFilter, labFilter, prodiFilter])
+  }, [search, kategoriFilter, labFilter, activeProdiFilter, isKepalaLab])
 
   const handleUpdateStatus = async (id: string, action: 'MARK_DAMAGED' | 'MARK_REPAIR' | 'FIXED') => {
     try {
@@ -301,15 +308,17 @@ export default function PeralatanPage() {
           </SelectContent>
         </Select>
 
-        <Select value={prodiFilter} onValueChange={(v) => setProdiFilter(v || 'all')}>
-          <SelectTrigger className="w-[160px] bg-slate-800/40 border-slate-700 text-white h-10">
-            <SelectValue placeholder="Prodi Teknik" />
-          </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-700 text-white">
-            <SelectItem value="all">Semua Prodi Teknik</SelectItem>
-            {PRODI_OPTIONS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {!isKepalaLab && (
+          <Select value={prodiFilter} onValueChange={(v) => setProdiFilter(v || 'all')}>
+            <SelectTrigger className="w-[160px] bg-slate-800/40 border-slate-700 text-white h-10">
+              <SelectValue placeholder="Prodi Teknik" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700 text-white">
+              <SelectItem value="all">Semua Prodi Teknik</SelectItem>
+              {PRODI_OPTIONS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
 
         {user?.role === 'KAJUR' && (
           <Select value={labFilter} onValueChange={(v) => setLabFilter(v || 'all')}>
@@ -321,6 +330,12 @@ export default function PeralatanPage() {
               {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
             </SelectContent>
           </Select>
+        )}
+        {isKepalaLab && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold h-10">
+            <FlaskConical size={14} />
+            <span>{labs.find(l => l.id === user?.labId)?.nama || 'Lab Anda'}</span>
+          </div>
         )}
       </div>
 
@@ -337,7 +352,7 @@ export default function PeralatanPage() {
                 <th rowSpan={2} className="px-3 py-4 text-center border-r border-slate-700">TOTAL</th>
                 <th colSpan={3} className="px-4 py-2 text-center border-b border-r border-slate-700">KONDISI UNIT</th>
                 <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">JUDUL LAB</th>
-                <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">PRODI TEKNIK</th>
+                {!isKepalaLab && <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">PRODI TEKNIK</th>}
                 <th rowSpan={2} className="px-3 py-4 text-center">AKSI</th>
               </tr>
               <tr className="bg-slate-800/50 text-white font-bold border-b border-slate-700 text-[9px]">
@@ -349,10 +364,10 @@ export default function PeralatanPage() {
             <tbody className="divide-y divide-slate-800">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}><td colSpan={11} className="p-4"><Skeleton className="h-8 w-full bg-slate-800" /></td></tr>
+                  <tr key={i}><td colSpan={isKepalaLab ? 10 : 11} className="p-4"><Skeleton className="h-8 w-full bg-slate-800" /></td></tr>
                 ))
               ) : data.length === 0 ? (
-                <tr><td colSpan={11} className="p-10 text-center text-slate-500">Data tidak ditemukan</td></tr>
+                <tr><td colSpan={isKepalaLab ? 10 : 11} className="p-10 text-center text-slate-500">Data tidak ditemukan</td></tr>
               ) : data.map((item, idx) => (
                 <tr key={item.id} className="hover:bg-slate-800/20 transition-colors text-slate-300">
                   <td className="px-3 py-4 text-center border-r border-slate-800/50">{idx + 1}</td>
@@ -369,7 +384,7 @@ export default function PeralatanPage() {
                   <td className="px-4 py-4 border-r border-slate-800/50 text-[10px]">
                     <div className="font-semibold text-slate-300">{labs.find(l => l.id === item.labId)?.nama || item.namaLab || '-'}</div>
                   </td>
-                  <td className="px-4 py-4 border-r border-slate-800/50 text-[10px] font-medium">{item.prodi || '-'}</td>
+                  {!isKepalaLab && <td className="px-4 py-4 border-r border-slate-800/50 text-[10px] font-medium">{item.prodi || '-'}</td>}
                   <td className="px-3 py-4 text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger render={

@@ -40,6 +40,7 @@ export default function KatalogPage() {
   const [showDetail, setShowDetail] = useState<Peralatan | null>(null)
   const user = useAuthStore((s) => s.user)
   const cart = useCartStore()
+  const isKepalaLab = user?.role === 'KEPALA_LAB'
   const canBorrow = user?.role !== 'KAJUR' && user?.role !== 'KEPALA_LAB'
   const [isCartOpen, setIsCartOpen] = useState(false)
 
@@ -48,7 +49,8 @@ export default function KatalogPage() {
     const params = new URLSearchParams()
     if (search) params.append('search', search)
     if (kategoriFilter !== 'all') params.append('kategori', kategoriFilter)
-    if (labFilter !== 'all') params.append('labId', labFilter)
+    // KEPALA_LAB: jangan kirim labId filter — API sudah otomatis membatasi ke lab mereka sendiri
+    if (!isKepalaLab && labFilter !== 'all') params.append('labId', labFilter)
     
     try {
       const res = await fetch(`/api/peralatan?${params.toString()}`)
@@ -58,7 +60,7 @@ export default function KatalogPage() {
     } finally {
       setLoading(false)
     }
-  }, [search, kategoriFilter, labFilter])
+  }, [search, kategoriFilter, labFilter, isKepalaLab])
 
   useEffect(() => {
     const timer = setTimeout(fetchData, 500)
@@ -105,18 +107,25 @@ export default function KatalogPage() {
           </SelectContent>
         </Select>
 
-        <Select value={labFilter} onValueChange={(value) => setLabFilter(value ?? 'all')}>
-          <SelectTrigger className="w-full md:w-64 bg-slate-800/40 border-slate-700 text-white">
-            <div className="flex items-center gap-2">
-              <BookOpen size={16} className="text-slate-500" />
-              <SelectValue placeholder="Semua Lab" />
-            </div>
-          </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-700 text-white">
-            <SelectItem value="all">Semua Lab</SelectItem>
-            {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {!isKepalaLab ? (
+          <Select value={labFilter} onValueChange={(value) => setLabFilter(value ?? 'all')}>
+            <SelectTrigger className="w-full md:w-64 bg-slate-800/40 border-slate-700 text-white">
+              <div className="flex items-center gap-2">
+                <BookOpen size={16} className="text-slate-500" />
+                <SelectValue placeholder="Semua Lab" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700 text-white">
+              <SelectItem value="all">Semua Lab</SelectItem>
+              {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="flex items-center gap-2 w-full md:w-64 px-3 py-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold">
+            <BookOpen size={16} />
+            <span>{labs.find(l => l.id === user?.labId)?.nama || 'Lab Anda'}</span>
+          </div>
+        )}
       </div>
 
       {/* List View */}
