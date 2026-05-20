@@ -451,8 +451,10 @@ export default function PeminjamanPage() {
         <QRScanner 
           onClose={() => setShowScanner(false)}
           onScan={(text) => {
-            if (text.startsWith('ITEM:')) {
-              const code = text.replace('ITEM:', '')
+            const qrText = text.trim()
+
+            if (qrText.startsWith('ITEM:')) {
+              const code = qrText.replace('ITEM:', '')
               // Cari peminjaman aktif yang memiliki alat dengan kode tersebut
               const results = data.filter(p => 
                 p.alat?.kodeAlat === code && 
@@ -463,6 +465,16 @@ export default function PeminjamanPage() {
                 setScannedResults(groupData(results))
               } else {
                 toast.error(`Tidak ditemukan peminjaman aktif untuk alat dengan kode: ${code}`)
+              }
+              setShowScanner(false)
+            } else if (qrText.startsWith('VERIFY_GRP:')) {
+              const groupKey = qrText.replace('VERIFY_GRP:', '')
+              const result = groupedData.find(group => group.groupKey === groupKey)
+
+              if (result) {
+                setScannedResults([result])
+              } else {
+                toast.error('Data peminjaman dari QR surat tidak ditemukan.')
               }
               setShowScanner(false)
             } else {
@@ -482,7 +494,7 @@ export default function PeminjamanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
-            <p className="text-xs text-slate-400">Ditemukan {scannedResults.length} peminjaman aktif untuk alat ini:</p>
+            <p className="text-xs text-slate-400">Ditemukan {scannedResults.length} data peminjaman:</p>
             {scannedResults.map(group => (
               <div key={group.groupKey} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
