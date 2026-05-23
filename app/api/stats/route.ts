@@ -25,8 +25,6 @@ export async function GET() {
     lQ = lQ.eq('pelaporId', user.id)
     pmQ = pmQ.eq('peminjamId', user.id)
     uQ = uQ.eq('id', user.id)
-    
-    // Mahasiswa dan Dosen bisa melihat total alat dari seluruh lab
   }
 
   const [peralatan, laporan, peminjaman, users] = await Promise.all([pQ, lQ, pmQ, uQ])
@@ -41,6 +39,9 @@ export async function GET() {
   const stokBaik = p.reduce((s, r) => s + (r.stokBaik || 0), 0)
   const stokRusak = p.reduce((s, r) => s + (r.stokRusak || 0), 0)
   const stokPerbaikan = p.reduce((s, r) => s + (r.stokButuhPerbaikan || 0), 0)
+
+  // Transaksi aktif didefinisikan sebagai peminjaman yang sedang dipinjam/diambil (DIAMBIL)
+  const activePeminjaman = pm.filter(r => r.status === 'DIAMBIL').length
 
   const myActiveLoans = pm.filter(r => r.status === 'DISETUJUI' || r.status === 'DIAMBIL').length
   const myPendingLoans = pm.filter(r => r.status === 'PENDING').length
@@ -82,6 +83,7 @@ export async function GET() {
     pendingUsers: u.filter((r) => r.pendingApproval).length,
     pendingLaporan: l.filter((r) => r.status === 'DILAPOR').length,
     pendingPeminjaman: pendingPmGroups.size,
+    activePeminjaman,
     myActiveLoans,
     myPendingLoans,
     myReports,

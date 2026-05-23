@@ -188,6 +188,33 @@ export default function PeminjamanPage() {
     }
   }
 
+  const renderGroupStatus = (group: GroupedPeminjaman) => {
+    const counts = group.items.reduce((acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+
+    const statuses = Object.keys(counts)
+    
+    if (statuses.length === 1) {
+      return <StatusBadge status={statuses[0]} />
+    }
+
+    const labelParts: string[] = []
+    if (counts['DISETUJUI']) labelParts.push(`Disetujui ${counts['DISETUJUI']}`)
+    if (counts['DITOLAK']) labelParts.push(`Ditolak ${counts['DITOLAK']}`)
+    if (counts['PENDING']) labelParts.push(`Pending ${counts['PENDING']}`)
+    if (counts['DIAMBIL']) labelParts.push(`Dipinjam ${counts['DIAMBIL']}`)
+    if (counts['DIKEMBALIKAN']) labelParts.push(`Dikembalikan ${counts['DIKEMBALIKAN']}`)
+
+    const label = labelParts.join(', ')
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700">
+        {label}
+      </span>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -314,7 +341,7 @@ export default function PeminjamanPage() {
                   {/* Right: Status & Actions */}
                   <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 md:w-1/3 ml-auto">
                     <div className="flex flex-col items-end gap-1">
-                      <StatusBadge status={group.status} />
+                      {renderGroupStatus(group)}
                       <p className="text-[10px] text-slate-500">{new Date(group.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} • {new Date(group.createdAt).toLocaleDateString('id-ID')}</p>
                     </div>
 
@@ -502,7 +529,7 @@ export default function PeminjamanPage() {
                     <h4 className="text-white font-bold">{group.peminjam?.nama}</h4>
                     <p className="text-[10px] text-slate-500 uppercase">{group.peminjam?.nim || 'DOSEN'}</p>
                   </div>
-                  <StatusBadge status={group.status} />
+                  {renderGroupStatus(group)}
                 </div>
                 <div className="space-y-1.5 mt-1">
                   {group.items.map(it => (

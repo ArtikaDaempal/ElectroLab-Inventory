@@ -419,7 +419,9 @@ export default function LaporanPage() {
                 <Label className="text-slate-400 text-xs font-bold uppercase tracking-wider">Laboratorium*</Label>
                 <Select value={form.labId} onValueChange={(v) => handleLabChange(v || '')}>
                   <SelectTrigger className="bg-slate-800/50 border-slate-700 h-10">
-                    <SelectValue placeholder="Pilih lab" />
+                    <SelectValue placeholder="Pilih lab">
+                      {labs.find(l => l.id === form.labId)?.nama || 'Pilih lab'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
                     {labs.map((l) => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
@@ -430,7 +432,9 @@ export default function LaporanPage() {
                 <Label className="text-slate-400 text-xs font-bold uppercase tracking-wider">Pilih Alat*</Label>
                 <Select value={form.alatId} onValueChange={(v) => setForm({ ...form, alatId: v || '' })} disabled={!form.labId}>
                   <SelectTrigger className="bg-slate-800/50 border-slate-700 h-10">
-                    <SelectValue placeholder="Pilih alat" />
+                    <SelectValue placeholder="Pilih alat">
+                      {peralatan.find(p => p.id === form.alatId)?.namaAlat || 'Pilih alat'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
                     {peralatan.map((p) => <SelectItem key={p.id} value={p.id}>{p.namaAlat}</SelectItem>)}

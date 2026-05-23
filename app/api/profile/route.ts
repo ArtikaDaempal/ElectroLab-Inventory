@@ -7,7 +7,7 @@ export async function PUT(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { nama, nip, nim } = await req.json()
+  const { nama, email, nip, nim } = await req.json()
 
   if (!nama || nama.trim().length < 2) {
     return Response.json({ error: 'Nama minimal 2 karakter' }, { status: 400 })
@@ -16,6 +16,16 @@ export async function PUT(req: NextRequest) {
   const updates: Record<string, unknown> = {
     nama: nama.trim(),
     updatedAt: new Date().toISOString(),
+  }
+
+  // Validasi dan update email
+  if (email && email.trim()) {
+    const cleanEmail = email.toLowerCase().trim()
+    if (cleanEmail !== user.email) {
+      const { data: exists } = await supabase.from('User').select('id').eq('email', cleanEmail).single()
+      if (exists) return Response.json({ error: 'Email sudah digunakan oleh akun lain' }, { status: 409 })
+      updates.email = cleanEmail
+    }
   }
 
   // Update NIP hanya jika bukan mahasiswa
@@ -45,7 +55,7 @@ export async function PUT(req: NextRequest) {
     aksi: 'UPDATE_PROFIL',
     tabel: 'User',
     recordId: user.id,
-    dataBaru: { nama: updates.nama, nip: updates.nip, nim: updates.nim },
+    dataBaru: { nama: updates.nama, email: updates.email || user.email, nip: updates.nip, nim: updates.nim },
   })
 
   return Response.json(data)

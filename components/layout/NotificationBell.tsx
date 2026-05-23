@@ -58,25 +58,40 @@ export default function NotificationBell() {
 
   const [readIds, setReadIds] = useState<string[]>([])
 
-  useEffect(() => {
+  const syncReadIds = () => {
     const saved = localStorage.getItem('read_notifications')
     if (saved) setReadIds(JSON.parse(saved))
+  }
+
+  useEffect(() => {
+    syncReadIds()
     fetchNotifs()
     const interval = setInterval(fetchNotifs, 30000)
-    return () => clearInterval(interval)
+    
+    window.addEventListener('sync_read_notifications', syncReadIds)
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('sync_read_notifications', syncReadIds)
+    }
   }, [])
 
   const markAsRead = (id: string) => {
-    const newReadIds = [...new Set([...readIds, id])]
+    const saved = localStorage.getItem('read_notifications')
+    const currentReadIds = saved ? JSON.parse(saved) : []
+    const newReadIds = [...new Set([...currentReadIds, id])]
     setReadIds(newReadIds)
     localStorage.setItem('read_notifications', JSON.stringify(newReadIds))
+    window.dispatchEvent(new Event('sync_read_notifications'))
   }
 
   const markAllAsRead = () => {
+    const saved = localStorage.getItem('read_notifications')
+    const currentReadIds = saved ? JSON.parse(saved) : []
     const allIds = notifs.map(n => n.id)
-    const newReadIds = [...new Set([...readIds, ...allIds])]
+    const newReadIds = [...new Set([...currentReadIds, ...allIds])]
     setReadIds(newReadIds)
     localStorage.setItem('read_notifications', JSON.stringify(newReadIds))
+    window.dispatchEvent(new Event('sync_read_notifications'))
   }
 
   const unreadNotifs = notifs.filter(n => !readIds.includes(n.id))

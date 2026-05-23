@@ -112,7 +112,9 @@ export default function KatalogPage() {
             <SelectTrigger className="w-full md:w-64 bg-slate-800/40 border-slate-700 text-white">
               <div className="flex items-center gap-2">
                 <BookOpen size={16} className="text-slate-500" />
-                <SelectValue placeholder="Semua Lab" />
+                <SelectValue placeholder="Semua Lab">
+                  {labFilter === 'all' ? 'Semua Lab' : (labs.find(l => l.id === labFilter)?.nama || 'Semua Lab')}
+                </SelectValue>
               </div>
             </SelectTrigger>
             <SelectContent className="bg-slate-800 border-slate-700 text-white">

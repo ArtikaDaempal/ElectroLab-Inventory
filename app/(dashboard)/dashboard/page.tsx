@@ -19,6 +19,7 @@ import { QRScanner } from '@/components/ui/QRScanner'
 interface StatsData {
   totalAlat: number; stokBaik: number; stokRusak: number; stokPerbaikan: number
   totalUsers: number; pendingUsers: number; pendingLaporan: number; pendingPeminjaman: number
+  activePeminjaman: number;
   myActiveLoans: number; myPendingLoans: number; myReports: number;
   kategoriGroups: Record<string, number>
   laporanStatus: Record<string, number>
@@ -125,7 +126,7 @@ export default function DashboardPage() {
             ) : (
               <motion.div variants={fadeUp} className="cursor-pointer">
                 <Link href="/dashboard/peminjaman">
-                  <StatCard title="Peminjaman" value={stats?.pendingPeminjaman ?? '-'} icon={<ArrowLeftRight size={22} />}
+                  <StatCard title="Peminjaman" value={stats?.activePeminjaman ?? '-'} icon={<ArrowLeftRight size={22} />}
                     color="indigo" sub="Total transaksi aktif" loading={loading} />
                 </Link>
               </motion.div>

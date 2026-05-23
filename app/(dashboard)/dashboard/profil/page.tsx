@@ -20,13 +20,14 @@ export default function ProfilPage() {
   const [showNewPw, setShowNewPw] = useState(false)
   const [form, setForm] = useState({
     nama: user?.nama || '',
+    email: user?.email || '',
     nip: user?.nip || '',
     nim: user?.nim || '',
   })
 
   // Sync form when user changes
   useEffect(() => {
-    setForm({ nama: user?.nama || '', nip: user?.nip || '', nim: user?.nim || '' })
+    setForm({ nama: user?.nama || '', email: user?.email || '', nip: user?.nip || '', nim: user?.nim || '' })
   }, [user])
 
   const [pwForm, setPwForm] = useState({
@@ -140,7 +141,11 @@ export default function ProfilPage() {
               <Calendar size={16} className="text-teal-500/50" />
               <div className="min-w-0">
                 <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Bergabung</p>
-                <p className="text-xs">{new Date(user?.createdAt || '').toLocaleDateString('id-ID', { month:'long', year:'numeric' })}</p>
+                <p className="text-xs">
+                  {user?.createdAt 
+                    ? new Date(user.createdAt.endsWith('Z') || user.createdAt.includes('+') ? user.createdAt : user.createdAt + 'Z').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+                    : 'Baru Bergabung'}
+                </p>
               </div>
             </div>
           </div>
@@ -174,6 +179,17 @@ export default function ProfilPage() {
                   value={form.nama} 
                   disabled={!editing}
                   onChange={(e) => setForm({...form, nama: e.target.value})}
+                  className="bg-slate-800/50 border-slate-700 text-white disabled:opacity-70"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-400 text-xs">Email</Label>
+                <Input 
+                  type="email"
+                  value={form.email} 
+                  disabled={!editing}
+                  onChange={(e) => setForm({...form, email: e.target.value})}
                   className="bg-slate-800/50 border-slate-700 text-white disabled:opacity-70"
                 />
               </div>

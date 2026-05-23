@@ -21,10 +21,10 @@ export async function GET(req: NextRequest) {
   if (kategori && kategori !== 'all') query = query.eq('kategori', kategori)
 
   const prodi = sp.get('prodi')
-  if (prodi && prodi !== 'all') query = query.eq('prodi', prodi)
+  if (prodi && prodi !== 'all') query = query.ilike('prodi', prodi)
 
   const namaLab = sp.get('namaLab')
-  if (namaLab && namaLab !== 'all') query = query.eq('namaLab', namaLab)
+  if (namaLab && namaLab !== 'all') query = query.ilike('namaLab', namaLab)
 
   const filterLabId = sp.get('labId')
   if (filterLabId && filterLabId !== 'all') query = query.eq('labId', filterLabId)

@@ -183,7 +183,9 @@ function PinjamForm() {
                 <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-11">
                   <div className="flex items-center gap-2">
                     <FlaskConical size={16} className="text-indigo-400" />
-                    <SelectValue placeholder="Pilih laboratorium..." />
+                    <SelectValue placeholder="Pilih laboratorium...">
+                      {labs.find(l => l.id === form.labId)?.nama || 'Pilih laboratorium...'}
+                    </SelectValue>
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700 text-white">

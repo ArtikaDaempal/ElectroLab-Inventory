@@ -102,8 +102,20 @@ export async function POST(req: NextRequest) {
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
   
-  for (const d of data) {
-    await createAuditLog({ userId: user.id, userName: user.nama, aksi: 'CREATE_PEMINJAMAN', tabel: 'Peminjaman', recordId: d.id, labId: d.labId })
+  if (data && data.length > 0) {
+    const first = data[0]
+    await createAuditLog({ 
+      userId: user.id, 
+      userName: user.nama, 
+      aksi: 'CREATE_PEMINJAMAN', 
+      tabel: 'Peminjaman', 
+      recordId: first.id, 
+      labId: first.labId,
+      dataBaru: {
+        itemsCount: data.length,
+        peminjamNama: user.nama
+      }
+    })
   }
 
   return Response.json(data, { status: 201 })

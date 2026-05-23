@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FlaskConical, Plus, Edit2, Trash2, RefreshCw, Info, AlertTriangle } from 'lucide-react'
+import { FlaskConical, Plus, Edit2, Trash2, RefreshCw, AlertTriangle, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +19,7 @@ interface Lab {
   kode: string
   deskripsi: string | null
   prodi: string | null
+  kepalaLab: { id: string, nama: string, email: string } | null
 }
 
 const PRODI_OPTIONS = [
@@ -37,14 +38,16 @@ export default function LabManagementPage() {
       router.push('/dashboard')
     }
   }, [user, router])
+
   const [labs, setLabs] = useState<Lab[]>([])
+  const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [showEdit, setShowEdit] = useState<Lab | null>(null)
   const [showDelete, setShowDelete] = useState<Lab | null>(null)
   const [saving, setSaving] = useState(false)
   
-  const [form, setForm] = useState({ nama: '', kode: '', deskripsi: '', prodi: '' })
+  const [form, setForm] = useState({ nama: '', kode: '', deskripsi: '', prodi: '', kepalaLabId: 'none' })
 
   const fetchLabs = async () => {
     setLoading(true)
@@ -58,7 +61,38 @@ export default function LabManagementPage() {
     }
   }
 
-  useEffect(() => { fetchLabs() }, [])
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/users')
+      if (res.ok) {
+        const data = await res.json()
+        setUsers(Array.isArray(data) ? data : [])
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => { 
+    fetchLabs() 
+    fetchUsers()
+  }, [])
+
+  const handleOpenAdd = () => {
+    setForm({ nama: '', kode: '', deskripsi: '', prodi: '', kepalaLabId: 'none' })
+    setShowAdd(true)
+  }
+
+  const handleOpenEdit = (lab: Lab) => {
+    setShowEdit(lab)
+    setForm({
+      nama: lab.nama,
+      kode: lab.kode,
+      deskripsi: lab.deskripsi || '',
+      prodi: lab.prodi || '',
+      kepalaLabId: lab.kepalaLab?.id || 'none'
+    })
+  }
 
   const handleSubmit = async () => {
     if (!form.nama || !form.kode) {
@@ -77,8 +111,9 @@ export default function LabManagementPage() {
         toast.success(showEdit ? 'Lab diperbarui' : 'Lab ditambahkan')
         setShowAdd(false)
         setShowEdit(null)
-        setForm({ nama: '', kode: '', deskripsi: '', prodi: '' })
+        setForm({ nama: '', kode: '', deskripsi: '', prodi: '', kepalaLabId: 'none' })
         fetchLabs()
+        fetchUsers() // Refresh list user untuk update status kepala lab
       } else {
         const d = await res.json()
         throw new Error(d.error)
@@ -99,6 +134,7 @@ export default function LabManagementPage() {
         toast.success('Lab dihapus')
         setShowDelete(null)
         fetchLabs()
+        fetchUsers()
       } else {
         const d = await res.json()
         throw new Error(d.error)
@@ -110,6 +146,8 @@ export default function LabManagementPage() {
     }
   }
 
+  const dosenOptions = users.filter(u => u.role === 'DOSEN' || u.role === 'KEPALA_LAB')
+
   return (
     <div className="max-w-5xl space-y-6">
       <div className="flex items-center justify-between">
@@ -117,10 +155,10 @@ export default function LabManagementPage() {
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <FlaskConical className="text-teal-400" /> Manajemen Laboratorium
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Kelola daftar unit laboratorium institusi</p>
+          <p className="text-slate-400 text-sm mt-1">Kelola daftar unit laboratorium institusi beserta Kepala Lab</p>
         </motion.div>
         <Button 
-          onClick={() => setShowAdd(true)}
+          onClick={handleOpenAdd}
           className="bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-500/20"
         >
           <Plus size={16} className="mr-2" /> Tambah Lab Baru
@@ -152,7 +190,7 @@ export default function LabManagementPage() {
                     )}
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white" onClick={(e) => { e.stopPropagation(); setShowEdit(lab); setForm({ nama: lab.nama, kode: lab.kode, deskripsi: lab.deskripsi || '', prodi: lab.prodi || '' }) }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white" onClick={(e) => { e.stopPropagation(); handleOpenEdit(lab) }}>
                       <Edit2 size={14} />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={(e) => { e.stopPropagation(); setShowDelete(lab) }}>
@@ -163,6 +201,18 @@ export default function LabManagementPage() {
                 <h3 className="text-white font-bold text-lg leading-tight">{lab.nama}</h3>
                 <p className="text-slate-500 text-[10px] font-mono mt-1 uppercase tracking-widest">{lab.kode}</p>
                 <p className="text-slate-400 text-xs line-clamp-2 mt-3 italic">"{lab.deskripsi || 'Tidak ada deskripsi'}"</p>
+                
+                {lab.kepalaLab ? (
+                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-amber-400 font-medium">
+                    <UserCheck size={14} className="shrink-0" />
+                    <span className="truncate">Kepala: {lab.kepalaLab.nama}</span>
+                  </div>
+                ) : (
+                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-slate-500 italic">
+                    <UserCheck size={14} className="shrink-0 text-slate-600" />
+                    <span>Belum ditugaskan</span>
+                  </div>
+                )}
               </div>
             </motion.div>
           ))
@@ -201,6 +251,31 @@ export default function LabManagementPage() {
               <Label>Deskripsi Singkat</Label>
               <Input value={form.deskripsi} onChange={(e) => setForm({...form, deskripsi: e.target.value})} placeholder="Kapasitas atau fokus lab..." className="bg-slate-800/50 border-slate-700 text-white" />
             </div>
+            
+            <div className="space-y-2">
+              <Label>Kepala Laboratorium</Label>
+              <Select value={form.kepalaLabId} onValueChange={(v) => setForm({...form, kepalaLabId: v ?? 'none'})}>
+                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                  <SelectValue placeholder="Pilih Kepala Lab">
+                    {form.kepalaLabId === 'none' || !form.kepalaLabId 
+                      ? 'Tanpa Kepala Lab' 
+                      : (dosenOptions.find(d => d.id === form.kepalaLabId)?.nama || 'Tanpa Kepala Lab')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                  <SelectItem value="none">Tanpa Kepala Lab</SelectItem>
+                  {dosenOptions.map(d => {
+                    const isAssignedElsewhere = d.labId && d.labId !== showEdit?.id
+                    const currentLabName = isAssignedElsewhere ? (labs.find(l => l.id === d.labId)?.nama || 'Lab Lain') : ''
+                    return (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.nama} {isAssignedElsewhere ? `(Kepala ${currentLabName})` : ''}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={saving} className="bg-teal-600 hover:bg-teal-700 w-full font-bold">
@@ -217,7 +292,7 @@ export default function LabManagementPage() {
         onConfirm={handleDelete}
         loading={saving}
         title="Hapus Laboratorium?"
-        description={`Menghapus "${showDelete?.nama}" hanya bisa dilakukan jika tidak ada user atau alat di dalamnya.`}
+        description={`Menghapus "${showDelete?.nama}" hanya bisa dilakukan jika tidak ada peralatan di dalamnya.`}
       />
     </div>
   )

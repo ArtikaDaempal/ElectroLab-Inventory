@@ -12,8 +12,18 @@ export default function NotifikasiPage() {
     fetch('/api/notifications')
       .then(res => res.json())
       .then(data => {
-        setNotifs(Array.isArray(data) ? data : [])
+        const list = Array.isArray(data) ? data : []
+        setNotifs(list)
         setLoading(false)
+
+        if (list.length > 0) {
+          const saved = localStorage.getItem('read_notifications')
+          const currentReadIds = saved ? JSON.parse(saved) : []
+          const allIds = list.map((n: any) => n.id)
+          const newReadIds = [...new Set([...currentReadIds, ...allIds])]
+          localStorage.setItem('read_notifications', JSON.stringify(newReadIds))
+          window.dispatchEvent(new Event('sync_read_notifications'))
+        }
       })
       .catch(() => setLoading(false))
   }, [])

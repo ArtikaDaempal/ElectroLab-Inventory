@@ -320,10 +320,12 @@ export default function PeralatanPage() {
           </Select>
         )}
 
-        {user?.role === 'KAJUR' && (
+        {!isKepalaLab && (
           <Select value={labFilter} onValueChange={(v) => setLabFilter(v || 'all')}>
             <SelectTrigger className="w-[180px] bg-slate-800/40 border-slate-700 text-white font-bold h-10">
-              <SelectValue placeholder="Laboratorium" />
+              <SelectValue placeholder="Laboratorium">
+                {labFilter === 'all' ? 'Semua Lab' : (labs.find(l => l.id === labFilter)?.nama || 'Semua Lab')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800 text-white">
               <SelectItem value="all">Semua Lab</SelectItem>
@@ -440,7 +442,11 @@ export default function PeralatanPage() {
             <div className="space-y-2">
               <Label>Laboratorium</Label>
               <Select value={form.labId} onValueChange={(v) => setForm({...form, labId: v || ''})} disabled={user?.role !== 'KAJUR'}>
-                <SelectTrigger className="bg-slate-800 border-slate-700"><SelectValue placeholder="Pilih Lab" /></SelectTrigger>
+                <SelectTrigger className="bg-slate-800 border-slate-700">
+                  <SelectValue placeholder="Pilih Lab">
+                    {labs.find(l => l.id === form.labId)?.nama || 'Pilih Lab'}
+                  </SelectValue>
+                </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700 text-white">
                   {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
                 </SelectContent>

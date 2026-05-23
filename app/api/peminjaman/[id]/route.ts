@@ -26,8 +26,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
-  // 2. If approving from pending, reduce stock
-  if (status === 'DISETUJUI' && old.status === 'PENDING') {
+  // 2. If approving or taking directly from pending, reduce stock
+  if ((status === 'DISETUJUI' || status === 'DIAMBIL') && old.status === 'PENDING') {
     const { data: alat } = await supabase.from('Peralatan').select('stokBaik').eq('id', old.alatId).single()
     if (!alat || alat.stokBaik < old.jumlah) return Response.json({ error: 'Stok tidak mencukupi' }, { status: 400 })
     await supabase.from('Peralatan').update({

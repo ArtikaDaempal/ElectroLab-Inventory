@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     // Pengecekan verifikasi email dan pending approval dihapus agar langsung masuk
     if (!user.aktif) return Response.json({ error: 'Akun Anda telah dinonaktifkan.', code: 'INACTIVE' }, { status: 403 })
 
-    const sessionUser = { id: user.id, email: user.email, nama: user.nama, role: user.role, nip: user.nip, nim: user.nim, fotoUrl: user.fotoUrl, aktif: user.aktif, labId: user.labId }
+    const sessionUser = { id: user.id, email: user.email, nama: user.nama, role: user.role, nip: user.nip, nim: user.nim, fotoUrl: user.fotoUrl, aktif: user.aktif, labId: user.labId, createdAt: user.createdAt }
     const token = await signToken(sessionUser)
 
     const response = Response.json({ user: sessionUser })
