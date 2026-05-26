@@ -20,9 +20,6 @@ export async function GET(req: NextRequest) {
   const kategori = sp.get('kategori')
   if (kategori && kategori !== 'all') query = query.eq('kategori', kategori)
 
-  const prodi = sp.get('prodi')
-  if (prodi && prodi !== 'all') query = query.ilike('prodi', prodi)
-
   const namaLab = sp.get('namaLab')
   if (namaLab && namaLab !== 'all') query = query.ilike('namaLab', namaLab)
 
@@ -56,7 +53,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { namaAlat, kategori, merek, kodeAlat, stokTotal, stokBaik, stokRusak, stokButuhPerbaikan, namaLab, prodi, kondisi, fotoUrl, labId } = body
+  const { namaAlat, kategori, merek, kodeAlat, stokTotal, stokBaik, stokRusak, stokButuhPerbaikan, namaLab, kondisi, fotoUrl, labId } = body
 
   if (!namaAlat || !kategori || !kodeAlat) return Response.json({ error: 'Field wajib tidak lengkap' }, { status: 400 })
 
@@ -74,7 +71,7 @@ export async function POST(req: NextRequest) {
     id: uuid(), namaAlat, kategori, merek: merek || null, kodeAlat,
     stokTotal: Number(stokTotal) || 0, stokBaik: Number(stokBaik) || 0,
     stokRusak: Number(stokRusak) || 0, stokButuhPerbaikan: Number(stokButuhPerbaikan) || 0,
-    namaLab: namaLab || null, prodi: prodi || null, kondisi: kondisi || null,
+    namaLab: namaLab || null, prodi: null, kondisi: kondisi || null,
     fotoUrl: fotoUrl || null,
     labId: finalLabId,
     createdAt: now, updatedAt: now,

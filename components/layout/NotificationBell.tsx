@@ -99,7 +99,13 @@ export default function NotificationBell() {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          const nextOpen = !open
+          setOpen(nextOpen)
+          if (nextOpen) {
+            markAllAsRead()
+          }
+        }}
         className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
       >
         {unreadNotifs.length > 0 ? <BellRing size={20} className="text-teal-400" /> : <Bell size={20} />}

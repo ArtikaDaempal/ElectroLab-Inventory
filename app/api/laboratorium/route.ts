@@ -31,12 +31,12 @@ export async function POST(req: NextRequest) {
   const user = await getSessionUser()
   if (!user || user.role !== 'KAJUR') return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { nama, kode, deskripsi, prodi, kepalaLabId } = await req.json()
+  const { nama, kode, deskripsi, kepalaLabId } = await req.json()
   if (!nama || !kode) return Response.json({ error: 'Nama dan Kode wajib diisi' }, { status: 400 })
 
   const newLabId = uuid()
   const { data, error } = await supabase.from('Laboratorium').insert({
-    id: newLabId, nama, kode, deskripsi, prodi, createdAt: new Date().toISOString()
+    id: newLabId, nama, kode, deskripsi, prodi: null, createdAt: new Date().toISOString()
   }).select().single()
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
@@ -58,9 +58,9 @@ export async function PUT(req: NextRequest) {
   const user = await getSessionUser()
   if (!user || user.role !== 'KAJUR') return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, nama, kode, deskripsi, prodi, kepalaLabId } = await req.json()
+  const { id, nama, kode, deskripsi, kepalaLabId } = await req.json()
   const { data, error } = await supabase.from('Laboratorium').update({
-    nama, kode, deskripsi, prodi
+    nama, kode, deskripsi, prodi: null
   }).eq('id', id).select().single()
 
   if (error) return Response.json({ error: error.message }, { status: 500 })

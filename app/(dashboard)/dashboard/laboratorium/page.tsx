@@ -146,7 +146,13 @@ export default function LabManagementPage() {
     }
   }
 
-  const dosenOptions = users.filter(u => u.role === 'DOSEN' || u.role === 'KEPALA_LAB')
+  const dosenOptions = users.filter(u => {
+    const isLecturer = u.role === 'DOSEN' || u.role === 'KEPALA_LAB'
+    if (!isLecturer) return false
+    // Hanya tampilkan dosen yang belum memegang lab manapun, atau yang sedang menjadi kepala lab dari lab ini
+    const currentEditedLabId = showEdit?.id
+    return !u.labId || u.labId === currentEditedLabId
+  })
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -185,9 +191,6 @@ export default function LabManagementPage() {
                     <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 border border-teal-500/20">
                       <FlaskConical size={20} />
                     </div>
-                    {lab.prodi && (
-                      <span className="text-[9px] font-bold text-teal-400/70 uppercase tracking-tighter mt-1">{lab.prodi}</span>
-                    )}
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white" onClick={(e) => { e.stopPropagation(); handleOpenEdit(lab) }}>
@@ -231,19 +234,6 @@ export default function LabManagementPage() {
               <Input value={form.nama} onChange={(e) => setForm({...form, nama: e.target.value})} placeholder="Misal: Lab Game Programming" className="bg-slate-800/50 border-slate-700 text-white" />
             </div>
             <div className="space-y-2">
-              <Label>Prodi Teknik*</Label>
-              <Select value={form.prodi} onValueChange={(v) => setForm({...form, prodi: v ?? ''})}>
-                <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                  <SelectValue placeholder="Pilih Prodi Teknik" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                  {PRODI_OPTIONS.map(opt => (
-                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
               <Label>Kode Lab*</Label>
               <Input value={form.kode} onChange={(e) => setForm({...form, kode: e.target.value})} placeholder="Misal: LAB-GP" className="bg-slate-800/50 border-slate-700 text-white font-mono uppercase" />
             </div>
@@ -262,17 +252,13 @@ export default function LabManagementPage() {
                       : (dosenOptions.find(d => d.id === form.kepalaLabId)?.nama || 'Tanpa Kepala Lab')}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
                   <SelectItem value="none">Tanpa Kepala Lab</SelectItem>
-                  {dosenOptions.map(d => {
-                    const isAssignedElsewhere = d.labId && d.labId !== showEdit?.id
-                    const currentLabName = isAssignedElsewhere ? (labs.find(l => l.id === d.labId)?.nama || 'Lab Lain') : ''
-                    return (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.nama} {isAssignedElsewhere ? `(Kepala ${currentLabName})` : ''}
-                      </SelectItem>
-                    )
-                  })}
+                  {dosenOptions.map(d => (
+                    <SelectItem key={d.id} value={d.id} className="pr-8">
+                      {d.nama}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

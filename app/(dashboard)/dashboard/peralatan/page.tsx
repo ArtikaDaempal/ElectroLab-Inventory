@@ -308,7 +308,7 @@ export default function PeralatanPage() {
           </SelectContent>
         </Select>
 
-        {!isKepalaLab && (
+        {user?.role !== 'KAJUR' && !isKepalaLab && (
           <Select value={prodiFilter} onValueChange={(v) => setProdiFilter(v || 'all')}>
             <SelectTrigger className="w-[160px] bg-slate-800/40 border-slate-700 text-white h-10">
               <SelectValue placeholder="Prodi Teknik" />
@@ -327,7 +327,7 @@ export default function PeralatanPage() {
                 {labFilter === 'all' ? 'Semua Lab' : (labs.find(l => l.id === labFilter)?.nama || 'Semua Lab')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+            <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-900 border-slate-800 text-white">
               <SelectItem value="all">Semua Lab</SelectItem>
               {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
             </SelectContent>
@@ -354,7 +354,6 @@ export default function PeralatanPage() {
                 <th rowSpan={2} className="px-3 py-4 text-center border-r border-slate-700">TOTAL</th>
                 <th colSpan={3} className="px-4 py-2 text-center border-b border-r border-slate-700">KONDISI UNIT</th>
                 <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">JUDUL LAB</th>
-                {!isKepalaLab && <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">PRODI TEKNIK</th>}
                 <th rowSpan={2} className="px-3 py-4 text-center">AKSI</th>
               </tr>
               <tr className="bg-slate-800/50 text-white font-bold border-b border-slate-700 text-[9px]">
@@ -366,10 +365,10 @@ export default function PeralatanPage() {
             <tbody className="divide-y divide-slate-800">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i}><td colSpan={isKepalaLab ? 10 : 11} className="p-4"><Skeleton className="h-8 w-full bg-slate-800" /></td></tr>
+                  <tr key={i}><td colSpan={10} className="p-4"><Skeleton className="h-8 w-full bg-slate-800" /></td></tr>
                 ))
               ) : data.length === 0 ? (
-                <tr><td colSpan={isKepalaLab ? 10 : 11} className="p-10 text-center text-slate-500">Data tidak ditemukan</td></tr>
+                <tr><td colSpan={10} className="p-10 text-center text-slate-500">Data tidak ditemukan</td></tr>
               ) : data.map((item, idx) => (
                 <tr key={item.id} className="hover:bg-slate-800/20 transition-colors text-slate-300">
                   <td className="px-3 py-4 text-center border-r border-slate-800/50">{idx + 1}</td>
@@ -386,7 +385,6 @@ export default function PeralatanPage() {
                   <td className="px-4 py-4 border-r border-slate-800/50 text-[10px]">
                     <div className="font-semibold text-slate-300">{labs.find(l => l.id === item.labId)?.nama || item.namaLab || '-'}</div>
                   </td>
-                  {!isKepalaLab && <td className="px-4 py-4 border-r border-slate-800/50 text-[10px] font-medium">{item.prodi || '-'}</td>}
                   <td className="px-3 py-4 text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger render={
@@ -447,14 +445,10 @@ export default function PeralatanPage() {
                     {labs.find(l => l.id === form.labId)?.nama || 'Pilih Lab'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
                   {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Prodi Teknik</Label>
-              <Input value={form.prodi} onChange={(e) => setForm({...form, prodi: e.target.value})} className="bg-slate-800 border-slate-700" />
             </div>
           </div>
           <DialogFooter>

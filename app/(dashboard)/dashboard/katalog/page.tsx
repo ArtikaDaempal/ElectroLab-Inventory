@@ -117,7 +117,7 @@ export default function KatalogPage() {
                 </SelectValue>
               </div>
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700 text-white">
+            <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
               <SelectItem value="all">Semua Lab</SelectItem>
               {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
             </SelectContent>
@@ -240,10 +240,6 @@ export default function KatalogPage() {
               <div>
                 <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Laboratorium</p>
                 <p className="text-white text-sm">{showDetail?.namaLab || '-'}</p>
-              </div>
-              <div>
-                <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Program Studi</p>
-                <p className="text-white text-sm">{showDetail?.prodi || '-'}</p>
               </div>
               <div>
                 <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Merek</p>

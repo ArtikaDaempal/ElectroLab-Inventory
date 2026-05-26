@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const { 
     namaAlat, kategori, merek, kodeAlat, stokTotal, stokBaik, stokRusak, 
-    stokButuhPerbaikan, namaLab, prodi, kondisi, fotoUrl 
+    stokButuhPerbaikan, namaLab, kondisi, fotoUrl 
   } = body
 
   const { data, error } = await supabase.from('Peralatan').update({
@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     stokBaik: Number(stokBaik) || 0,
     stokRusak: Number(stokRusak) || 0,
     stokButuhPerbaikan: Number(stokButuhPerbaikan) || 0,
-    namaLab, prodi, kondisi, fotoUrl,
+    namaLab, prodi: null, kondisi, fotoUrl,
     updatedAt: new Date().toISOString(),
   }).eq('id', id).select().single()
 

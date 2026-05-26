@@ -423,7 +423,7 @@ export default function LaporanPage() {
                       {labs.find(l => l.id === form.labId)?.nama || 'Pilih lab'}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                  <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
                     {labs.map((l) => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
                   </SelectContent>
                 </Select>
