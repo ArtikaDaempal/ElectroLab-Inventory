@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  let query = supabase.from('User').select('id,email,nama,nip,nim,role,aktif,pendingApproval,createdAt,labId')
+  let query = supabase.from('User').select('id,email,nama,nip,nim,role,aktif,pendingApproval,createdAt,labId,fotoUrl')
     .neq('role', 'KAJUR')
 
   if (roleFilter) query = query.eq('role', roleFilter)

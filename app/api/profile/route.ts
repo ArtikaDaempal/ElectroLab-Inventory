@@ -7,7 +7,7 @@ export async function PUT(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { nama, email, nip, nim } = await req.json()
+  const { nama, email, nip, nim, fotoUrl } = await req.json()
 
   if (!nama || nama.trim().length < 2) {
     return Response.json({ error: 'Nama minimal 2 karakter' }, { status: 400 })
@@ -16,6 +16,10 @@ export async function PUT(req: NextRequest) {
   const updates: Record<string, unknown> = {
     nama: nama.trim(),
     updatedAt: new Date().toISOString(),
+  }
+
+  if (fotoUrl !== undefined) {
+    updates.fotoUrl = fotoUrl
   }
 
   // Validasi dan update email
@@ -44,7 +48,7 @@ export async function PUT(req: NextRequest) {
     .from('User')
     .update(updates)
     .eq('id', user.id)
-    .select('id,nama,email,role,nip,nim,labId,aktif,createdAt,updatedAt')
+    .select('id,nama,email,role,nip,nim,labId,aktif,fotoUrl,createdAt,updatedAt')
     .single()
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
@@ -55,7 +59,7 @@ export async function PUT(req: NextRequest) {
     aksi: 'UPDATE_PROFIL',
     tabel: 'User',
     recordId: user.id,
-    dataBaru: { nama: updates.nama, email: updates.email || user.email, nip: updates.nip, nim: updates.nim },
+    dataBaru: { nama: updates.nama, email: updates.email || user.email, nip: updates.nip, nim: updates.nim, fotoUrl: updates.fotoUrl },
   })
 
   return Response.json(data)

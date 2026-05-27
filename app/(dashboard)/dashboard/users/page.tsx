@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface UserData {
   id: string
@@ -33,6 +34,7 @@ interface UserData {
   aktif: boolean
   createdAt: string
   labId: string | null
+  fotoUrl: string | null
 }
 
 import { useRouter } from 'next/navigation'
@@ -266,9 +268,12 @@ export default function UsersPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
-                            {u.nama.charAt(0).toUpperCase()}
-                          </div>
+                          <Avatar className="w-9 h-9 border border-slate-700/50 shadow-sm">
+                            <AvatarImage src={u.fotoUrl || ''} className="object-cover" />
+                            <AvatarFallback className="bg-slate-800 text-teal-400 text-sm font-bold">
+                              {u.nama.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           <div>
                             <p className="text-white text-sm font-medium">{u.nama}</p>
                             <p className="text-slate-500 text-xs">{u.email}</p>

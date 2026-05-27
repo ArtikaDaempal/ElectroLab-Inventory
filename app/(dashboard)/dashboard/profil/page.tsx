@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { 
   User, Mail, Shield, Calendar, 
@@ -16,6 +16,8 @@ export default function ProfilPage() {
   const { user, setUser } = useAuthStore()
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [showOldPw, setShowOldPw] = useState(false)
   const [showNewPw, setShowNewPw] = useState(false)
   const [form, setForm] = useState({
@@ -35,6 +37,66 @@ export default function ProfilPage() {
     newPassword: '',
     confirmPassword: ''
   })
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran gambar maksimal 2MB')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Berkas harus berupa gambar')
+      return
+    }
+
+    setUploading(true)
+    const toastId = toast.loading('Mengunggah foto profil...')
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const uploadData = await uploadRes.json()
+
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error || 'Gagal mengunggah berkas')
+      }
+
+      const imageUrl = uploadData.url
+
+      const profileRes = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nama: form.nama,
+          email: form.email,
+          nip: form.nip || undefined,
+          nim: form.nim || undefined,
+          fotoUrl: imageUrl,
+        }),
+      })
+      const profileData = await profileRes.json()
+
+      if (!profileRes.ok) {
+        throw new Error(profileData.error || 'Gagal memperbarui foto profil')
+      }
+
+      setUser({ ...user!, ...profileData })
+      toast.success('Foto profil berhasil diperbarui!', { id: toastId })
+    } catch (err: any) {
+      toast.error(err.message || 'Gagal memperbarui foto profil', { id: toastId })
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -105,16 +167,32 @@ export default function ProfilPage() {
           initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
           className="glass-card p-6 flex flex-col items-center text-center space-y-4 h-fit"
         >
-          <div className="relative group">
-            <Avatar className="w-32 h-32 border-4 border-teal-500/20 shadow-2xl">
-              <AvatarImage src="" />
+          <div className="relative group cursor-pointer" onClick={() => !uploading && fileInputRef.current?.click()}>
+            <Avatar className="w-32 h-32 border-4 border-teal-500/20 shadow-2xl relative">
+              <AvatarImage src={user?.fotoUrl || ''} className="object-cover" />
               <AvatarFallback className="bg-slate-800 text-teal-400 text-4xl font-bold">
                 {user?.nama?.charAt(0).toUpperCase()}
               </AvatarFallback>
+              {uploading && (
+                <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center rounded-full">
+                  <RefreshCw className="animate-spin text-teal-400" size={24} />
+                </div>
+              )}
             </Avatar>
-            <button className="absolute bottom-0 right-0 p-2 rounded-full bg-teal-500 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+            <button 
+              type="button" 
+              disabled={uploading}
+              className="absolute bottom-0 right-0 p-2 rounded-full bg-teal-500 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <Camera size={16} />
             </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handlePhotoUpload} 
+            />
           </div>
           
           <div>
