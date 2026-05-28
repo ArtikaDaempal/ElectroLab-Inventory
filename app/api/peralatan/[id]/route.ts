@@ -26,13 +26,20 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     stokButuhPerbaikan, namaLab, kondisi, fotoUrl 
   } = body
 
+  // Ambil nama lab dari database dan lakukan sanitasi untuk menghindari bug trigger database
+  const { data: labData } = await supabase.from('Laboratorium').select('nama').eq('id', old.labId).single()
+  let sanitizedNamaLab = labData?.nama || null
+  if (sanitizedNamaLab && (sanitizedNamaLab.toLowerCase().includes('listrik') || sanitizedNamaLab.toLowerCase().includes('mekanik'))) {
+    sanitizedNamaLab = 'Lab TMIL'
+  }
+
   const { data, error } = await supabase.from('Peralatan').update({
     namaAlat, kategori, merek, kodeAlat,
     stokTotal: Number(stokTotal) || 0,
     stokBaik: Number(stokBaik) || 0,
     stokRusak: Number(stokRusak) || 0,
     stokButuhPerbaikan: Number(stokButuhPerbaikan) || 0,
-    namaLab, prodi: null, kondisi, fotoUrl,
+    namaLab: sanitizedNamaLab, prodi: null, kondisi, fotoUrl,
     updatedAt: new Date().toISOString(),
   }).eq('id', id).select().single()
 

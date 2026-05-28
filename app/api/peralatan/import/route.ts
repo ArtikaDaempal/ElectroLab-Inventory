@@ -22,12 +22,21 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'User tidak terikat dengan laboratorium' }, { status: 400 })
     }
 
-    // Fetch all labs to map names if KAJUR
-    let labMapping: Record<string, string> = {}
-    if (user.role === 'KAJUR') {
-      const { data: allLabs } = await supabase.from('Laboratorium').select('id, nama')
-      allLabs?.forEach(l => { labMapping[l.nama.toLowerCase()] = l.id })
+    // Fetch user's lab name if not KAJUR
+    let userLabName = ''
+    if (user.role !== 'KAJUR' && labId) {
+      const { data: labData } = await supabase.from('Laboratorium').select('nama').eq('id', labId).single()
+      userLabName = labData?.nama || ''
     }
+
+    // Fetch all labs to map names and resolve official names
+    const { data: allLabs } = await supabase.from('Laboratorium').select('id, nama')
+    const labMapping: Record<string, string> = {}
+    const labNameMap: Record<string, string> = {}
+    allLabs?.forEach(l => {
+      labMapping[l.nama.toLowerCase()] = l.id
+      labNameMap[l.id] = l.nama
+    })
 
     const now = new Date().toISOString()
     const records = items.map((item: any, idx: number) => {
@@ -38,6 +47,20 @@ export async function POST(req: NextRequest) {
       if (user.role === 'KAJUR' && item.namaLab) {
         const foundId = labMapping[item.namaLab.toLowerCase()]
         if (foundId) itemLabId = foundId
+      }
+
+      // If not KAJUR, verify that the item's namaLab matches the user's lab name
+      if (user.role !== 'KAJUR' && item.namaLab && userLabName) {
+        const itemLabLower = item.namaLab.toLowerCase().replace(/laboratorium|lab/g, '').trim()
+        const userLabLower = userLabName.toLowerCase().replace(/laboratorium|lab/g, '').trim()
+        
+        const isMatch = itemLabLower.includes(userLabLower) || 
+                        userLabLower.includes(itemLabLower) ||
+                        itemLabLower === userLabLower
+                        
+        if (!isMatch) {
+          itemLabId = null // Will be filtered out
+        }
       }
 
       // Final check: Pastikan labId adalah UUID yang valid
@@ -53,6 +76,17 @@ export async function POST(req: NextRequest) {
       // Generate kode if missing
       const generatedKode = item.kodeAlat || `ALT-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${idx}`
 
+      // Sanitize namaLab to prevent trigger error for TMIL
+      let sanitizedNamaLab = item.namaLab || null
+      if (itemLabId && labNameMap[itemLabId]) {
+        const officialName = labNameMap[itemLabId]
+        if (officialName.toLowerCase().includes('listrik') || officialName.toLowerCase().includes('mekanik')) {
+          sanitizedNamaLab = 'Lab TMIL'
+        } else {
+          sanitizedNamaLab = officialName
+        }
+      }
+
       return {
         id: uuid(),
         namaAlat: item.namaAlat,
@@ -63,7 +97,7 @@ export async function POST(req: NextRequest) {
         stokBaik: baik,
         stokRusak: rusak,
         stokButuhPerbaikan: perbaikan,
-        namaLab: item.namaLab || null,
+        namaLab: sanitizedNamaLab,
         prodi: item.prodi || null,
         labId: itemLabId,
         createdAt: now,

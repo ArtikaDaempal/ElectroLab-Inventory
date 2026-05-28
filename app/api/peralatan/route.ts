@@ -67,11 +67,18 @@ export async function POST(req: NextRequest) {
 
   if (!finalLabId) return Response.json({ error: 'Laboratorium tidak ditentukan' }, { status: 400 })
 
+  // Ambil nama lab dari database dan lakukan sanitasi untuk menghindari bug trigger database
+  const { data: labData } = await supabase.from('Laboratorium').select('nama').eq('id', finalLabId).single()
+  let sanitizedNamaLab = labData?.nama || null
+  if (sanitizedNamaLab && (sanitizedNamaLab.toLowerCase().includes('listrik') || sanitizedNamaLab.toLowerCase().includes('mekanik'))) {
+    sanitizedNamaLab = 'Lab TMIL'
+  }
+
   const { data, error } = await supabase.from('Peralatan').insert({
     id: uuid(), namaAlat, kategori, merek: merek || null, kodeAlat,
     stokTotal: Number(stokTotal) || 0, stokBaik: Number(stokBaik) || 0,
     stokRusak: Number(stokRusak) || 0, stokButuhPerbaikan: Number(stokButuhPerbaikan) || 0,
-    namaLab: namaLab || null, prodi: null, kondisi: kondisi || null,
+    namaLab: sanitizedNamaLab, prodi: null, kondisi: kondisi || null,
     fotoUrl: fotoUrl || null,
     labId: finalLabId,
     createdAt: now, updatedAt: now,

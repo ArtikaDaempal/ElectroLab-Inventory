@@ -206,14 +206,13 @@ export default function PeralatanPage() {
           return {
             namaAlat: getVal(['NAMA ALAT', 'NAMA', 'ALAT', 'NAME', 'EQUIPMENT']),
             kategori: getVal(['KATEGORI', 'CATEGORY', 'JENIS']),
-            merek: getVal(['SPESIFIKASI', 'MERK', 'MEREK', 'BRAND', 'MODEL', 'SPESIFIKASI/MERK']),
+            merek: getVal(['SPESIFIKASI / MERK', 'SPESIFIKASI/MERK', 'MERK', 'MEREK', 'BRAND', 'MODEL']),
             kodeAlat: getVal(['KODE ALAT', 'KODE', 'CODE', 'SKU']),
             stokTotal: getVal(['JUMLAH TOTAL', 'TOTAL', 'QTY', 'QUANTITY', 'STOK']),
             stokBaik: getVal(['BAIK', 'GOOD', 'NORMAL']),
             stokRusak: getVal(['RUSAK', 'BROKEN', 'DAMAGED']),
             stokButuhPerbaikan: getVal(['BUTUH PERBAIKAN', 'PERBAIKAN', 'REPAIR']),
             namaLab: getVal(['NAMA LAB', 'LAB', 'LABORATORIUM', 'ROOM']),
-            prodi: getVal(['PRODI', 'PROGRAM STUDI', 'DEPARTMENT']),
           }
         })
 
@@ -244,15 +243,14 @@ export default function PeralatanPage() {
     const template = [
       {
         'NO': 1,
-        'NAMA ALAT': 'Mikroskop Binokuler',
-        'KATEGORI': 'Optik',
-        'SPESIFIKASI/MERK': 'Olympus CX23',
-        'JUMLAH TOTAL': 10,
-        'BAIK': 8,
+        'NAMA ALAT': 'Transformator Arus (CT)',
+        'KATEGORI': 'Sensor & Transduser',
+        'SPESIFIKASI / MERK': 'Schneider LVCT 50/5A Panel',
+        'JUMLAH TOTAL': 7,
+        'BAIK': 6,
         'RUSAK': 1,
         'BUTUH PERBAIKAN': 1,
-        'NAMA LAB': 'Lab Biologi',
-        'PRODI': 'Biologi'
+        'NAMA LAB': 'Laboratorium Konversi Energi Distribusi dan Proteksi'
       }
     ]
     const ws = XLSX.utils.json_to_sheet(template)
@@ -353,7 +351,7 @@ export default function PeralatanPage() {
                 <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">SPESIFIKASI / MERK</th>
                 <th rowSpan={2} className="px-3 py-4 text-center border-r border-slate-700">TOTAL</th>
                 <th colSpan={3} className="px-4 py-2 text-center border-b border-r border-slate-700">KONDISI UNIT</th>
-                <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">JUDUL LAB</th>
+                <th rowSpan={2} className="px-4 py-4 border-r border-slate-700">NAMA LAB</th>
                 <th rowSpan={2} className="px-3 py-4 text-center">AKSI</th>
               </tr>
               <tr className="bg-slate-800/50 text-white font-bold border-b border-slate-700 text-[9px]">
@@ -397,7 +395,7 @@ export default function PeralatanPage() {
                           <DropdownMenuItem onClick={() => handleOpenEdit(item)}><Edit2 size={14} className="mr-2" /> Edit Alat</DropdownMenuItem>
                         )}
                         <DropdownMenuItem onClick={() => setShowQR(item)}><QrCode size={14} className="mr-2" /> QR Code</DropdownMenuItem>
-                        {user?.role === 'KAJUR' && (
+                        {canManageEquipment && (
                           <DropdownMenuItem className="text-red-400" onClick={() => setShowDelete(item)}><Trash2 size={14} className="mr-2" /> Hapus Permanen</DropdownMenuItem>
                         )}
                       </DropdownMenuContent>

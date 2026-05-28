@@ -9,16 +9,23 @@ export async function buildExportWorkbook(rows: Record<string, unknown>[]) {
   const sheet = workbook.addWorksheet('Peralatan')
 
   const headers = [
-    'Kode Alat', 'Nama Alat', 'Kategori', 'Merek',
-    'Stok Total', 'Stok Baik', 'Stok Rusak', 'Butuh Perbaikan',
-    'Nama Lab', 'Prodi', 'Kondisi',
+    'NO', 'KODE ALAT', 'NAMA ALAT', 'KATEGORI', 'SPESIFIKASI / MERK',
+    'JUMLAH TOTAL', 'BAIK', 'RUSAK', 'BUTUH PERBAIKAN',
+    'NAMA LAB'
   ]
 
-  sheet.columns = headers.map((h, i) => ({
-    header: h,
-    key: Object.keys(emptyRow())[i],
-    width: 20,
-  }))
+  sheet.columns = [
+    { header: 'NO', key: 'no', width: 6 },
+    { header: 'KODE ALAT', key: 'kodeAlat', width: 18 },
+    { header: 'NAMA ALAT', key: 'namaAlat', width: 26 },
+    { header: 'KATEGORI', key: 'kategori', width: 22 },
+    { header: 'SPESIFIKASI / MERK', key: 'merek', width: 26 },
+    { header: 'JUMLAH TOTAL', key: 'stokTotal', width: 15 },
+    { header: 'BAIK', key: 'stokBaik', width: 10 },
+    { header: 'RUSAK', key: 'stokRusak', width: 10 },
+    { header: 'BUTUH PERBAIKAN', key: 'stokButuhPerbaikan', width: 18 },
+    { header: 'NAMA LAB', key: 'namaLab', width: 26 }
+  ]
 
   // Style header row
   const headerRow = sheet.getRow(1)
@@ -32,11 +39,12 @@ export async function buildExportWorkbook(rows: Record<string, unknown>[]) {
   })
   headerRow.height = 30
 
-  rows.forEach((r: Record<string, unknown>, idx) => {
+  rows.forEach((r: Record<string, any>, idx) => {
     const row = sheet.addRow([
-      r.kodeAlat, r.namaAlat, r.kategori, r.merek,
+      idx + 1,
+      r.kodeAlat, r.namaAlat, r.kategori, r.merek || '-',
       r.stokTotal, r.stokBaik, r.stokRusak, r.stokButuhPerbaikan,
-      r.namaLab, r.prodi, r.kondisi,
+      r.namaLab || '-'
     ])
     if (idx % 2 === 1) {
       row.eachCell((cell) => {
@@ -47,12 +55,12 @@ export async function buildExportWorkbook(rows: Record<string, unknown>[]) {
 
   // Totals row
   const totalRow = sheet.addRow([
-    'TOTAL', '', '', '',
+    'TOTAL', '', '', '', '',
     rows.reduce((s, r) => s + Number(r.stokTotal || 0), 0),
     rows.reduce((s, r) => s + Number(r.stokBaik || 0), 0),
     rows.reduce((s, r) => s + Number(r.stokRusak || 0), 0),
     rows.reduce((s, r) => s + Number(r.stokButuhPerbaikan || 0), 0),
-    '', '', '',
+    ''
   ])
   totalRow.eachCell((cell) => {
     cell.font = { bold: true }
@@ -171,24 +179,35 @@ export async function buildTemplateWorkbook() {
   const sheet = workbook.addWorksheet('Template Import')
 
   const headers = [
-    'namaAlat*', 'kategori*', 'merek', 'kodeAlat*',
-    'stokTotal*', 'stokBaik*', 'stokRusak', 'stokButuhPerbaikan',
-    'namaLab', 'prodi', 'kondisi',
+    'NO', 'NAMA ALAT', 'KATEGORI', 'SPESIFIKASI / MERK',
+    'JUMLAH TOTAL', 'BAIK', 'RUSAK', 'BUTUH PERBAIKAN',
+    'NAMA LAB'
   ]
 
-  sheet.columns = headers.map((h) => ({ header: h, key: h, width: 22 }))
+  sheet.columns = [
+    { header: 'NO', key: 'no', width: 6 },
+    { header: 'NAMA ALAT', key: 'namaAlat', width: 26 },
+    { header: 'KATEGORI', key: 'kategori', width: 22 },
+    { header: 'SPESIFIKASI / MERK', key: 'merek', width: 26 },
+    { header: 'JUMLAH TOTAL', key: 'stokTotal', width: 15 },
+    { header: 'BAIK', key: 'stokBaik', width: 10 },
+    { header: 'RUSAK', key: 'stokRusak', width: 10 },
+    { header: 'BUTUH PERBAIKAN', key: 'stokButuhPerbaikan', width: 18 },
+    { header: 'NAMA LAB', key: 'namaLab', width: 26 }
+  ]
+
   const headerRow = sheet.getRow(1)
   headerRow.eachCell((cell) => {
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: TEAL } }
     cell.font = { bold: true, color: { argb: WHITE } }
-    cell.alignment = { horizontal: 'center' }
+    cell.alignment = { horizontal: 'center', vertical: 'middle' }
   })
   headerRow.height = 28
 
   // Example row
   sheet.addRow([
-    'Multimeter Digital', 'MULTIMETER', 'Sanwa', 'ALT-001',
-    5, 4, 1, 0, 'Lab Elektronika', 'Teknik Elektro', 'Baik',
+    1, 'Transformator Arus (CT)', 'Sensor & Transduser', 'Schneider LVCT 50/5A Panel',
+    7, 6, 1, 1, 'Laboratorium Konversi Energi Distribusi dan Proteksi'
   ])
 
   return workbook
