@@ -119,7 +119,9 @@ export default function Sidebar({ pendingCount = 0, onClose }: SidebarProps) {
 
       {/* Footer */}
       <div className="p-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <p className="text-slate-600 text-xs text-center">© 2026 Lab Elektro Inventaris</p>
+        <p className="text-slate-500 text-[10px] text-center leading-normal max-w-[240px] mx-auto">
+          © 2026 Sistem Inventaris Lab Elektro. Politeknik Negeri Manado. All Rights Reserved
+        </p>
       </div>
     </aside>
   )
