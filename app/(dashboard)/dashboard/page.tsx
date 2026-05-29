@@ -15,6 +15,8 @@ import ConditionPieChart from '@/components/charts/ConditionPieChart'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { QRScanner } from '@/components/ui/QRScanner'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface StatsData {
   totalAlat: number; stokBaik: number; stokRusak: number; stokPerbaikan: number
@@ -31,6 +33,7 @@ const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } 
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
+  const router = useRouter()
   const [stats, setStats] = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [showScanner, setShowScanner] = useState(false)
@@ -222,8 +225,9 @@ export default function DashboardPage() {
         <QRScanner 
           onClose={() => setShowScanner(false)}
           onScan={async (text) => {
-            if (text.startsWith('ITEM:')) {
-              const code = text.replace('ITEM:', '')
+            const qrText = text.trim()
+            if (qrText.startsWith('ITEM:')) {
+              const code = qrText.replace('ITEM:', '')
               setIsScanning(true)
               try {
                 const res = await fetch(`/api/peralatan?kodeAlat=${code}`)
@@ -231,16 +235,22 @@ export default function DashboardPage() {
                 if (data && data.length > 0) {
                   setScannedTool(data[0])
                 } else {
-                  alert(`Alat dengan kode ${code} tidak ditemukan.`)
+                  toast.error(`Alat dengan kode ${code} tidak ditemukan.`)
                 }
               } catch (err) {
                 console.error(err)
+                toast.error("Gagal memproses data alat.")
               } finally {
                 setIsScanning(false)
                 setShowScanner(false)
               }
+            } else if (qrText.startsWith('VERIFY_GRP:')) {
+              const groupKey = qrText.replace('VERIFY_GRP:', '')
+              setShowScanner(false)
+              toast.success("QR Surat Peminjaman terdeteksi. Mengalihkan...")
+              router.push(`/dashboard/peminjaman?verifyGrp=${groupKey}`)
             } else {
-              alert("Format QR Code tidak valid.")
+              toast.error("Format QR Code tidak valid.")
               setShowScanner(false)
             }
           }}

@@ -16,7 +16,7 @@ import { useAuthStore } from '@/store/auth'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { QRScanner } from '@/components/ui/QRScanner'
 import { QRCodeSVG } from 'qrcode.react'
-import { Printer, QrCode } from 'lucide-react'
+import { Printer, QrCode, Download } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -176,6 +176,27 @@ export default function PeminjamanPage() {
   }
 
   const groupedData = groupData(data)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const verifyGrp = params.get('verifyGrp')
+      if (verifyGrp && data.length > 0) {
+        const result = groupedData.find(group => group.groupKey === verifyGrp)
+        if (result) {
+          setScannedResults([result])
+          const url = new URL(window.location.href)
+          url.searchParams.delete('verifyGrp')
+          window.history.replaceState(null, '', url.pathname + url.search)
+        } else {
+          toast.error('Data peminjaman dari QR surat tidak ditemukan.')
+          const url = new URL(window.location.href)
+          url.searchParams.delete('verifyGrp')
+          window.history.replaceState(null, '', url.pathname + url.search)
+        }
+      }
+    }
+  }, [data, groupedData])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -397,7 +418,7 @@ export default function PeminjamanPage() {
                             <Info size={14} className="mr-2" /> Detail Tujuan
                           </DropdownMenuItem>
                           <DropdownMenuItem className="focus:bg-slate-800" onClick={() => setShowPrint(group)}>
-                            <Printer size={14} className="mr-2" /> Cetak Surat
+                            <Download size={14} className="mr-2" /> Download Surat
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -673,7 +694,7 @@ export default function PeminjamanPage() {
           <DialogFooter className="p-4 bg-slate-50 border-t">
             <Button variant="outline" onClick={() => setShowPrint(null)} className="border-slate-300">Tutup</Button>
             <Button 
-              className="bg-slate-900 hover:bg-slate-800 text-white gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-blue-500/20"
               onClick={() => {
                 const printContents = document.getElementById('printable-area')?.innerHTML;
                 const originalContents = document.body.innerHTML;
@@ -683,7 +704,7 @@ export default function PeminjamanPage() {
                 window.location.reload(); // Reload to restore React state
               }}
             >
-              <Printer size={16} /> Cetak Sekarang
+              <Download size={16} /> Download Surat (PDF)
             </Button>
           </DialogFooter>
         </DialogContent>
