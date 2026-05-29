@@ -75,7 +75,7 @@ function SignupContent() {
         </div>
         <h2 className="text-xl font-semibold text-white mb-2">Pendaftaran Berhasil!</h2>
         <p className="text-slate-400 text-sm mb-4">
-          Pendaftaran Anda berhasil! Akun Anda sudah aktif dan dapat langsung digunakan untuk masuk ke dashboard.
+          Pendaftaran Anda berhasil! Akun Anda sudah aktif dan dapat langsung digunakan untuk masuk ke dashboard. Kami telah mengirimkan email selamat datang ke alamat Gmail Anda.
         </p>
         <Button onClick={() => router.push('/login')} className="w-full" style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)' }}>
           Kembali ke Login
