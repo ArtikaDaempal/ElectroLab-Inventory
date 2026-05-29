@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useId, useRef, useState } from 'react'
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { X, Camera, RefreshCw, AlertTriangle, UploadCloud, ShieldAlert } from 'lucide-react'
 import { Button } from './button'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -49,11 +49,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     instance.start(
       cameraId,
       {
-        fps: 15,
-        qrbox: (width, height) => {
-          const size = Math.min(width, height) * 0.7
-          return { width: size, height: size }
-        },
+        fps: 20,
         aspectRatio: 1.0
       },
       (decodedText) => {
@@ -110,7 +106,10 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
         return
       }
 
-      const instance = new Html5Qrcode(readerId)
+      const instance = new Html5Qrcode(readerId, {
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        verbose: false
+      })
       html5QrcodeRef.current = instance
 
       Html5Qrcode.getCameras()
@@ -205,7 +204,10 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScan, onClose }) => {
     setScanningFile(true)
 
     // Instantiate temp Html5Qrcode targeting container for file scan
-    const tempScanner = new Html5Qrcode(readerId)
+    const tempScanner = new Html5Qrcode(readerId, {
+      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+      verbose: false
+    })
     tempScanner.scanFile(file, true)
       .then((decodedText) => {
         setScanningFile(false)

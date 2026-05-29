@@ -526,7 +526,7 @@ export default function PeralatanPage() {
               <QRCodeSVG 
                 value={`ITEM:${showQR?.kodeAlat}`}
                 size={200}
-                level="H"
+                level="M"
                 includeMargin={true}
               />
             </div>
