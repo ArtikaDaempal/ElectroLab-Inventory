@@ -596,105 +596,118 @@ export default function PeminjamanPage() {
       </Dialog>
       {/* Print Dialog */}
       <Dialog open={!!showPrint} onOpenChange={(o) => !o && setShowPrint(null)}>
-        <DialogContent className="bg-white text-slate-900 max-w-2xl p-0 overflow-hidden">
-          <div className="p-8 space-y-6" id="printable-area">
-            {/* Kop Surat */}
-            <div className="flex items-center gap-4 border-b-2 border-slate-900 pb-4">
-              <img src="/logo.png" alt="" className="w-16 h-16 object-contain" />
-              <div className="text-center flex-1">
-                <h2 className="text-lg font-bold uppercase">Kementerian Pendidikan Tinggi,</h2>
-                <h2 className="text-lg font-bold uppercase">Sains, dan Teknologi</h2>
-                <h3 className="text-md font-bold uppercase">Politeknik Negeri Manado</h3>
-                <p className="text-[10px]">Jl. Raya Politeknik, Kelurahan Buha, Kecamatan Mapanget, Kota Manado, Sulawesi Utara, Kode Pos 95252.</p>
-                <p className="text-[10px] font-bold">Laboratorium Teknik Elektro</p>
-              </div>
-            </div>
-
-            <div className="text-center space-y-1">
-              <h4 className="text-md font-bold underline decoration-1">SURAT PEMINJAMAN ALAT</h4>
-              <p className="text-[10px] font-mono text-slate-500">GROUP ID: {showPrint?.groupKey.split('-').pop()?.toUpperCase()}</p>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
-              <table className="w-full">
-                <tbody>
-                  <tr>
-                    <td className="w-32 py-1">Nama Peminjam</td>
-                    <td className="w-4">:</td>
-                    <td className="font-bold">{showPrint?.peminjam?.nama}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1">NIM / Email</td>
-                    <td>:</td>
-                    <td>{showPrint?.peminjam?.nim || showPrint?.peminjam?.email}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1">Tujuan</td>
-                    <td>:</td>
-                    <td>{showPrint?.tujuan}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <p>Telah meminjam peralatan berikut:</p>
-              <table className="w-full border-collapse border border-slate-300">
-                <thead>
-                  <tr className="bg-slate-100">
-                    <th className="border border-slate-300 p-2 text-left">Nama Alat</th>
-                    <th className="border border-slate-300 p-2 text-left">Kode Alat</th>
-                    <th className="border border-slate-300 p-2 text-center">Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {showPrint?.items.map(it => (
-                    <tr key={it.id}>
-                      <td className="border border-slate-300 p-2">{it.alat?.namaAlat}</td>
-                      <td className="border border-slate-300 p-2 font-mono">{it.alat?.kodeAlat}</td>
-                      <td className="border border-slate-300 p-2 text-center font-bold">{it.jumlah} Unit</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div className="grid grid-cols-2 gap-8 pt-4">
-                <div>
-                  <p>Tanggal Pinjam: <span className="font-bold">{showPrint && new Date(showPrint.tanggalPinjam).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</span></p>
-                  <p>Estimasi Kembali: <span className="font-bold">{showPrint?.tanggalKembali ? new Date(showPrint.tanggalKembali).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '-'}</span></p>
+        <DialogContent className="bg-white text-slate-900 w-[95vw] sm:max-w-2xl max-h-[95vh] p-0 flex flex-col overflow-hidden border-0 shadow-2xl">
+          <div className="flex-1 overflow-y-auto max-h-[75vh] custom-scrollbar">
+            <div id="printable-area">
+              <div className="p-6 sm:p-10 space-y-6 bg-white text-slate-900 print:p-0 print:space-y-4">
+                {/* Kop Surat */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 border-b-2 border-slate-900 pb-4 print:flex-row print:text-left">
+                  <img src="/logo.png" alt="" className="w-16 h-16 object-contain print:w-16 print:h-16" />
+                  <div className="text-center flex-1 sm:text-left print:text-center">
+                    <h2 className="text-sm sm:text-lg font-bold uppercase leading-tight">Kementerian Pendidikan Tinggi,</h2>
+                    <h2 className="text-sm sm:text-lg font-bold uppercase leading-tight">Sains, dan Teknologi</h2>
+                    <h3 className="text-xs sm:text-md font-bold uppercase tracking-wide mt-0.5">Politeknik Negeri Manado</h3>
+                    <p className="text-[8px] sm:text-[10px] leading-relaxed text-slate-600 print:text-slate-900 mt-1">
+                      Jl. Raya Politeknik, Kelurahan Buha, Kecamatan Mapanget, Kota Manado, Sulawesi Utara, Kode Pos 95252.
+                    </p>
+                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-800 print:text-slate-900 mt-0.5">Laboratorium Teknik Elektro</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p>Status: <span className="font-bold uppercase">{showPrint?.status}</span></p>
-                </div>
-              </div>
 
-              <div className="flex justify-between items-end pt-10">
-                <div className="text-center">
-                  <p className="mb-16">Peminjam,</p>
-                  <p className="font-bold">({showPrint?.peminjam?.nama})</p>
+                <div className="text-center space-y-1">
+                  <h4 className="text-xs sm:text-md font-bold underline decoration-1">SURAT PEMINJAMAN ALAT</h4>
+                  <p className="text-[9px] sm:text-[10px] font-mono text-slate-500">GROUP ID: {showPrint?.groupKey.split('-').pop()?.toUpperCase()}</p>
                 </div>
-                <div className="flex flex-col items-center">
-                    <div className="p-1 border border-slate-200 rounded">
-                      <QRCodeSVG value={`VERIFY_GRP:${showPrint?.groupKey}`} size={80} />
+
+                <div className="space-y-4 text-[11px] sm:text-xs">
+                  <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
+                  
+                  {/* Biodata Grid responsif */}
+                  <div className="grid grid-cols-1 sm:grid-cols-[130px_10px_1fr] print:grid-cols-[130px_10px_1fr] gap-1 sm:gap-y-2 print:gap-y-2 border border-slate-100 sm:border-0 p-3 sm:p-0 rounded-lg sm:rounded-none bg-slate-50/50 sm:bg-transparent">
+                    <div className="text-slate-500 sm:text-slate-900 font-medium">Nama Peminjam</div>
+                    <div className="hidden sm:block print:block text-center">:</div>
+                    <div className="font-bold text-slate-900">{showPrint?.peminjam?.nama}</div>
+
+                    <div className="text-slate-500 sm:text-slate-900 font-medium">NIM / Email</div>
+                    <div className="hidden sm:block print:block text-center">:</div>
+                    <div className="font-bold sm:font-normal text-slate-800">{showPrint?.peminjam?.nim || showPrint?.peminjam?.email}</div>
+
+                    <div className="text-slate-500 sm:text-slate-900 font-medium">Tujuan</div>
+                    <div className="hidden sm:block print:block text-center">:</div>
+                    <div className="text-slate-800">{showPrint?.tujuan}</div>
+                  </div>
+
+                  <p className="mt-4">Telah meminjam peralatan berikut:</p>
+                  
+                  {/* Container Table Responsif */}
+                  <div className="overflow-x-auto w-full border border-slate-200 rounded-lg overflow-hidden shadow-xs">
+                    <table className="w-full border-collapse min-w-[500px] sm:min-w-0">
+                      <thead>
+                        <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                          <th className="border-r border-slate-200 p-2 text-left w-3/5">Nama Alat</th>
+                          <th className="border-r border-slate-200 p-2 text-left w-1/4">Kode Alat</th>
+                          <th className="p-2 text-center w-20">Jumlah</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {showPrint?.items.map(it => (
+                          <tr key={it.id} className="hover:bg-slate-50/30">
+                            <td className="border-r border-slate-200 p-2 text-slate-800">{it.alat?.namaAlat}</td>
+                            <td className="border-r border-slate-200 p-2 font-mono text-slate-600">{it.alat?.kodeAlat}</td>
+                            <td className="p-2 text-center font-bold text-slate-900">{it.jumlah} Unit</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Grid Tanggal dan Status */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 sm:gap-8 pt-4">
+                    <div className="space-y-1 bg-slate-50/30 sm:bg-transparent p-3 sm:p-0 rounded-lg">
+                      <p className="text-slate-600 print:text-slate-900">Tanggal Pinjam: <span className="font-bold text-slate-900">{showPrint && new Date(showPrint.tanggalPinjam).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</span></p>
+                      <p className="text-slate-600 print:text-slate-900">Estimasi Kembali: <span className="font-bold text-slate-900">{showPrint?.tanggalKembali ? new Date(showPrint.tanggalKembali).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '-'}</span></p>
                     </div>
-                   <p className="text-[8px] mt-1 text-slate-400 font-mono">Digital Signature</p>
+                    <div className="text-left sm:text-right print:text-right flex sm:flex-col justify-between sm:justify-start items-center sm:items-end gap-2 bg-slate-50/30 sm:bg-transparent p-3 sm:p-0 rounded-lg">
+                      <span className="text-slate-600 print:text-slate-900">Status:</span>
+                      <span className="font-bold uppercase px-2 py-0.5 rounded-full text-[10px] border border-blue-200 bg-blue-50 text-blue-700 print:border-none print:bg-transparent print:text-slate-950 print:p-0 print:text-xs">
+                        {showPrint?.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Kolom Tanda Tangan */}
+                  <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-8 sm:gap-0 pt-8 pb-4 print:flex-row print:justify-between print:items-end">
+                    <div className="text-center w-full sm:w-auto">
+                      <p className="mb-14 text-slate-600 print:text-slate-950">Peminjam,</p>
+                      <p className="font-bold text-slate-900">({showPrint?.peminjam?.nama})</p>
+                    </div>
+                    
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="p-1.5 border border-slate-200 rounded-lg bg-white shadow-xs">
+                        <QRCodeSVG value={`VERIFY_GRP:${showPrint?.groupKey}`} size={72} />
+                      </div>
+                      <p className="text-[8px] mt-1 text-slate-400 font-mono tracking-wider">Digital Signature</p>
+                    </div>
+                    
+                    <div className="text-center w-full sm:w-auto">
+                      <p className="mb-14 text-slate-600 print:text-slate-950">Kepala Laboratorium,</p>
+                      <p className="font-bold underline text-slate-900">({kepalaLab?.nama || '.....................................'})</p>
+                      <p className="text-[10px] text-slate-500 print:text-slate-950 mt-0.5">NIP. {kepalaLab?.nip || '.....................................'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="mb-16">Kepala Laboratorium,</p>
-                  <p className="font-bold underline">({kepalaLab?.nama || '.....................................'})</p>
-                  <p className="text-[10px]">NIP. {kepalaLab?.nip || '.....................................'}</p>
-                </div>
+                
+                <p className="text-[8px] text-slate-400 italic text-center border-t border-slate-200 pt-4 mt-6">
+                  Dokumen ini dihasilkan secara otomatis oleh Sistem Inventaris Lab Elektro Poli Manado. 
+                  Verifikasi keaslian dokumen dapat dilakukan dengan memindai kode QR di atas.
+                </p>
               </div>
             </div>
-            
-            <p className="text-[8px] text-slate-400 italic text-center border-t pt-4">
-              Dokumen ini dihasilkan secara otomatis oleh Sistem Inventaris Lab Elektro Poli Manado. 
-              Verifikasi keaslian dokumen dapat dilakukan dengan memindai kode QR di atas.
-            </p>
           </div>
-          <DialogFooter className="p-4 bg-slate-50 border-t">
-            <Button variant="outline" onClick={() => setShowPrint(null)} className="border-slate-300">Tutup</Button>
+          <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowPrint(null)} className="border-slate-300 w-full sm:w-auto hover:bg-slate-100">Tutup</Button>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-blue-500/20"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-lg shadow-blue-500/20 w-full sm:w-auto"
               onClick={() => {
                 const printContents = document.getElementById('printable-area')?.innerHTML;
                 const originalContents = document.body.innerHTML;

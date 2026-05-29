@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
 import { useAuthStore } from '@/store/auth'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -59,8 +60,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Navbar onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col justify-between">
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </main>
       </div>
     </div>

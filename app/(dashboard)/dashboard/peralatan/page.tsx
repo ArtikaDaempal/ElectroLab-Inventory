@@ -325,7 +325,7 @@ export default function PeralatanPage() {
                 {labFilter === 'all' ? 'Semua Lab' : (labs.find(l => l.id === labFilter)?.nama || 'Semua Lab')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-900 border-slate-800 text-white">
+            <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] sm:max-w-[420px] bg-slate-900 border-slate-800 text-white">
               <SelectItem value="all">Semua Lab</SelectItem>
               {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
             </SelectContent>
@@ -443,7 +443,7 @@ export default function PeralatanPage() {
                     {labs.find(l => l.id === form.labId)?.nama || 'Pilih Lab'}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] sm:max-w-[420px] bg-slate-800 border-slate-700 text-white">
                   {labs.map(l => <SelectItem key={l.id} value={l.id}>{l.nama}</SelectItem>)}
                 </SelectContent>
               </Select>

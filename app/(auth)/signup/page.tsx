@@ -110,7 +110,7 @@ function SignupContent() {
                   <SelectValue placeholder="Pilih lab tempat Anda bernaung..." />
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
+              <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] sm:max-w-[420px] bg-slate-800 border-slate-700 text-white">
                 {labs.length > 0 ? labs.map(l => (
                   <SelectItem key={l.id} value={l.id}>{l.nama} ({l.kode})</SelectItem>
                 )) : (

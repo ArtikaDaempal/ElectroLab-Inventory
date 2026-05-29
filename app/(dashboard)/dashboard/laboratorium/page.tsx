@@ -252,7 +252,7 @@ export default function LabManagementPage() {
                       : (dosenOptions.find(d => d.id === form.kepalaLabId)?.nama || 'Tanpa Kepala Lab')}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[420px] bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="w-max min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] sm:max-w-[420px] bg-slate-800 border-slate-700 text-white">
                   <SelectItem value="none">Tanpa Kepala Lab</SelectItem>
                   {dosenOptions.map(d => (
                     <SelectItem key={d.id} value={d.id} className="pr-8">
