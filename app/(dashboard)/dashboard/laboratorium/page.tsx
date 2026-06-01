@@ -155,8 +155,8 @@ export default function LabManagementPage() {
   })
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <FlaskConical className="text-teal-400" /> Manajemen Laboratorium
@@ -165,16 +165,16 @@ export default function LabManagementPage() {
         </motion.div>
         <Button 
           onClick={handleOpenAdd}
-          className="bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-500/20"
+          className="bg-teal-600 hover:bg-teal-700 shadow-lg shadow-teal-500/20 shrink-0"
         >
           <Plus size={16} className="mr-2" /> Tambah Lab Baru
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="glass-card h-44 animate-pulse bg-slate-800/50" />
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="glass-card h-52 animate-pulse bg-slate-800/50" />
           ))
         ) : (
           labs.map((lab) => (
@@ -183,35 +183,37 @@ export default function LabManagementPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               onClick={() => router.push(`/dashboard/peralatan?labId=${lab.id}`)}
-              className="glass-card p-6 group hover:border-teal-500/40 transition-all flex flex-col justify-between cursor-pointer border border-slate-800"
+              className="glass-card p-6 group hover:border-teal-500/40 transition-all flex flex-col justify-between cursor-pointer border border-slate-800 h-full"
             >
-              <div>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 border border-teal-500/20">
-                      <FlaskConical size={20} />
+              <div className="flex flex-col h-full justify-between gap-4">
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex flex-col gap-1">
+                      <div className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 border border-teal-500/20">
+                        <FlaskConical size={20} />
+                      </div>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white" onClick={(e) => { e.stopPropagation(); handleOpenEdit(lab) }}>
+                        <Edit2 size={14} />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={(e) => { e.stopPropagation(); setShowDelete(lab) }}>
+                        <Trash2 size={14} />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white" onClick={(e) => { e.stopPropagation(); handleOpenEdit(lab) }}>
-                      <Edit2 size={14} />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-400" onClick={(e) => { e.stopPropagation(); setShowDelete(lab) }}>
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
+                  <h3 className="text-white font-bold text-lg leading-tight">{lab.nama}</h3>
+                  <p className="text-slate-500 text-[10px] font-mono mt-1 uppercase tracking-widest">{lab.kode}</p>
+                  <p className="text-slate-400 text-xs line-clamp-2 mt-3 italic">"{lab.deskripsi || 'Tidak ada deskripsi'}"</p>
                 </div>
-                <h3 className="text-white font-bold text-lg leading-tight">{lab.nama}</h3>
-                <p className="text-slate-500 text-[10px] font-mono mt-1 uppercase tracking-widest">{lab.kode}</p>
-                <p className="text-slate-400 text-xs line-clamp-2 mt-3 italic">"{lab.deskripsi || 'Tidak ada deskripsi'}"</p>
                 
                 {lab.kepalaLab ? (
-                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-amber-400 font-medium">
+                  <div className="pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-amber-400 font-medium">
                     <UserCheck size={14} className="shrink-0" />
                     <span className="truncate">Kepala: {lab.kepalaLab.nama}</span>
                   </div>
                 ) : (
-                  <div className="mt-4 pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-slate-500 italic">
+                  <div className="pt-3 border-t border-slate-800/40 flex items-center gap-2 text-xs text-slate-500 italic">
                     <UserCheck size={14} className="shrink-0 text-slate-600" />
                     <span>Belum ditugaskan</span>
                   </div>
