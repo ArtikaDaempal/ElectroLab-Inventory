@@ -17,7 +17,7 @@ import { useCartStore } from '@/store/cart'
 import { ShoppingCart, Plus as PlusIcon, Minus as MinusIcon, Trash2 } from 'lucide-react'
 
 interface Peralatan {
-  id: string
+  id: string  
   namaAlat: string
   kategori: string
   merek: string | null

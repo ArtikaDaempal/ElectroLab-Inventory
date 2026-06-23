@@ -1,5 +1,6 @@
 'use client'
-import { Laptop, Globe } from 'lucide-react'
+import { Laptop, Globe, Users } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Footer() {
   return (
@@ -36,6 +37,14 @@ export default function Footer() {
             <Globe size={12} className="text-blue-500" />
             Teknik Elektro Polimdo
           </a>
+          <span className="hidden sm:inline text-slate-800">|</span>
+          <Link 
+            href="/dashboard/pengembang" 
+            className="flex items-center gap-1 hover:text-blue-400 transition-colors underline decoration-slate-800 underline-offset-4"
+          >
+            <Users size={12} className="text-blue-500" />
+            Tim Pengembang
+          </Link>
           <span className="hidden sm:inline text-slate-800">|</span>
           <span className="text-slate-400 font-medium">PBL Teknologi Web</span>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import Sidebar from '@/components/layout/Sidebar'
 import Navbar from '@/components/layout/Navbar'
@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/auth'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const user = useAuthStore((s) => s.user)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingCount, setPendingCount] = useState(0)
@@ -31,7 +32,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           .catch(() => {})
       }
     }
-
     fetchPending()
     const interval = setInterval(fetchPending, 30000) // Update every 30 seconds
     return () => clearInterval(interval)
@@ -42,6 +42,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400" />
     </div>
   )
+
+  const isFullPage = pathname === '/dashboard/pengembang'
+
+  if (isFullPage) {
+    return (
+      <div className="min-h-screen w-full overflow-y-auto p-4 md:p-8 flex flex-col justify-between">
+        <div className="flex-1 w-full max-w-7xl mx-auto">
+          {children}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
